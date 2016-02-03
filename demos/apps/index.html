@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Blockly Apps Script demo</title>
+<script src="../../blockly_uncompressed.js"></script>
+<script src="../../generators/javascript.js"></script>
+<script src="../../generators/javascript/apps.js"></script>
+<script src="../../generators/javascript/logic.js"></script>
+<script src="../../generators/javascript/loops.js"></script>
+<script src="../../generators/javascript/math.js"></script>
+<script src="../../generators/javascript/text.js"></script>
+<script src="../../generators/javascript/lists.js"></script>
+<script src="../../generators/javascript/colour.js"></script>
+<script src="../../generators/javascript/variables.js"></script>
+<script src="../../generators/javascript/procedures.js"></script>
+<script src="../../msg/messages.js"></script>
+<script src="../../blocks/logic.js"></script>
+<script src="../../blocks/loops.js"></script>
+<script src="../../blocks/apps.js"></script>  <!-- Order is important here; this needs a customContextMenu from loops.js -->
+<script src="../../blocks/math.js"></script>
+<script src="../../blocks/text.js"></script>
+<script src="../../blocks/lists.js"></script>
+<script src="../../blocks/colour.js"></script>
+<script src="../../blocks/variables.js"></script>
+<script src="../../blocks/procedures.js"></script>
+<script>
+  'use strict';
+  // Depending on the URL argument, render as LTR or RTL.
+  var rtl = (document.location.search == '?rtl');
+  var workspace = null;
+
+  // Globals introduced for demo purposes.
+  var DEFAULT_COLUMN_HEADERS = ['Name', 'Email'];
+  var GLOBALS = {
+    COLUMN_HEADERS: DEFAULT_COLUMN_HEADERS
+  };
+
+  function start() {
+    var toolbox = document.getElementById('toolbox');
+    workspace = Blockly.inject('blocklyDiv',
+            {comments: true,
+             disable: true,
+             collapse: true,
+             grid:
+               {spacing: 25,
+                length: 3,
+                colour: '#ccc',
+                snap: true},
+             maxBlocks: Infinity,
+             media: '../../media/',
+             readOnly: false,
+             realtime: false,
+             realtimeOptions:
+               {clientId: 'YOUR CLIENT ID GOES HERE',
+                chatbox: {elementId: 'chatbox'},
+                collabElementId: 'collaborators'},
+             rtl: rtl,
+             scrollbars: true,
+             toolbox: toolbox,
+             zoom:
+               {controls: true,
+                wheel: true,
+                startScale: 1.0,
+                maxScale: 4,
+                minScale: .25,
+                scaleSpeed: 1.1
+               },
+            });
+
+    // Decrease the hover time for tooltips.
+    Blockly.Tooltip.HOVER_MS = 150;
+
+    // Add a 'start hat' for event blocks.
+    Blockly.BlockSvg.START_HAT = true;
+
+    var defaultBlocks = document.getElementById('blocklyDefault');
+    Blockly.Xml.domToWorkspace(workspace, defaultBlocks);
+  }
+
+  function toXml() {
+    var output = document.getElementById('importExport');
+    var xml = Blockly.Xml.workspaceToDom(workspace);
+    output.value = Blockly.Xml.domToPrettyText(xml);
+    output.focus();
+    output.select();
+  }
+
+  function fromXml() {
+    workspace.clear();
+    var input = document.getElementById('importExport');
+    var xml = Blockly.Xml.textToDom(input.value);
+    Blockly.Xml.domToWorkspace(workspace, xml);
+  }
+
+  function toCode(lang) {
+    var output = document.getElementById('importExport');
+    output.value = Blockly[lang].workspaceToCode(workspace);
+  }
+
+  function updateColumnHeaders() {
+    var headersStr = document.getElementById('columnHeaders').value;
+    var headers = headersStr.split('\n').filter(function(item) {
+      return Boolean(item.trim().length);
+    });
+    GLOBALS.COLUMN_HEADERS = headers;
+  }
+</script>
+
+<style>
+html, body {
+  height: 100%;
+}
+body {
+  background-color: #fff;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+h1 {
+  font-weight: normal;
+  font-size: 140%;
+}
+#blocklyDiv {
+  float: right;
+  height: 95%;
+  width: 70%;
+}
+#collaborators {
+  float: right;
+  width: 30px;
+  margin-left: 10px;
+}
+#collaborators > img {
+  margin-right: 5px;
+  height: 30px;
+  padding-bottom: 5px;
+  width: 30px;
+  border-radius: 3px;
+}
+#importExport {
+  font-family: monospace;
+}
+</style>
+</head>
+<body onload="start()">
+
+  <div id="collaborators"></div>
+
+  <div id="blocklyDiv"></div>
+
+  <xml id="blocklyDefault">
+    <block type="apps_on_click" x="320" y="50" deletable="false"></block>
+  </xml>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Text" colour="160">
+      <block type="text"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+
+    <category name="Math" colour="230">
+      <block type="math_number" gap="32"></block>
+      <block type="math_arithmetic">
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant"></block>
+      <block type="math_number_property">
+        <value name="NUMBER_TO_CHECK">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_change">
+        <value name="DELTA">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_round">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+
+    <category name="Colour" colour="20">
+      <block type="colour_picker"></block>
+    </category>
+
+    <sep></sep>
+
+    <category name="Logic" colour="210">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_ternary"></block>
+    </category>
+
+    <category name="Loops" colour="120">
+      <block type="apps_for_each_range" gap="48"></block>
+
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+
+    <category name="Variables" colour="330" custom="VARIABLE"></category>
+
+    <category name="Functions" colour="290" custom="PROCEDURE"></category>
+
+    <sep></sep>
+
+    <category name="Email" colour="55">
+      <block type="apps_send_email"></block>
+    </category>
+
+    <category name="Spreadsheet" colour="20">
+      <block type="apps_cell" gap="8">
+        <field name="TEXT">A1</field>
+      </block>
+      <block type="apps_cell_by_header_and_row_number" gap="8">
+        <value name="ROWNUMBER">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="apps_cell_by_coords" gap="8">
+        <value name="COLUMNLETTER">
+          <shadow type="text">
+            <field name="TEXT">A</field>
+          </shadow>
+        </value>
+        <value name="ROWNUMBER">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="apps_cell_by_coords_and_sheet_name" gap="48">
+        <value name="COLUMNLETTER">
+          <shadow type="text">
+            <field name="TEXT">A</field>
+          </shadow>
+        </value>
+        <value name="ROWNUMBER">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+
+      <block type="apps_get_cell_value" gap="8">
+        <value name="CELL">
+          <shadow type="apps_cell">
+            <field name="TEXT">A1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="apps_set_cell_value" gap="8">
+        <value name="CELL">
+          <shadow type="apps_cell">
+            <field name="TEXT">A1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="apps_set_cell_background_colour" gap="48">
+        <value name="COLOUR">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#66ff99</field>
+          </shadow>
+        </value>
+        <value name="CELL">
+          <shadow type="apps_cell">
+            <field name="TEXT">A1</field>
+          </shadow>
+        </value>
+      </block>
+
+      <block type="apps_entire_range" gap="8"></block>
+      <block type="apps_range" gap="48">
+        <value name="FROM">
+          <shadow type="apps_cell">
+            <field name="TEXT">A1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="apps_cell">
+            <field name="TEXT">D5</field>
+          </shadow>
+        </value>
+      </block>
+
+      <block type="apps_create_sheet" gap="48"></block>
+    </category>
+  </xml>
+
+  <h1>Blockly Apps Script Demo</h1>
+
+  <p>
+    <a href="javascript:void(workspace.setVisible(true))">Show Workspace</a>
+    -
+    <a href="javascript:void(workspace.setVisible(false))">Hide Workspace</a>
+  </p>
+
+  <script>
+    if (rtl) {
+      document.write('[ &larr; RTL. Switch to <A HREF="?ltr">LTR</A>. ]');
+    } else {
+      document.write('[ &rarr; LTR. Switch to <A HREF="?rtl">RTL</A>. ]');
+    }
+  </script>
+
+  <p>
+    <input type="button" value="Export to XML" onclick="toXml()">
+    &nbsp;
+    <input type="button" value="Import from XML" onclick="fromXml()">
+    &nbsp;
+    <input type="button" value="To Apps Script" onclick="toCode('JavaScript')">
+    <br><br>
+    <textarea id="importExport" style="width: 26%; height: 12em"></textarea>
+  </p>
+  <hr>
+  <p>
+    Advanced: enter column headers, one per line:
+    <br><br>
+    <textarea id="columnHeaders" style="width: 26%; height: 12em"></textarea>
+    <br><br>
+    <input type="button" value="Update column headers" onclick="updateColumnHeaders()">
+  </p>
+</body>
+</html>

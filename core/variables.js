@@ -106,8 +106,30 @@ Blockly.Variables.flyoutCategory = function(workspace) {
   variableList.unshift(Blockly.Msg.VARIABLES_DEFAULT_NAME);
 
   var xmlList = [];
-  for (var i = 0; i < variableList.length; i++) {
-    if (Blockly.Blocks['variables_set']) {
+  if (Blockly.Blocks['variables_get']) {
+    for (var i = 0; i < variableList.length; i++) {
+      // <block type="variables_get" gap="8">
+      //   <field name="VAR">item</field>
+      // </block>
+      var block = goog.dom.createDom('block');
+      block.setAttribute('type', 'variables_get');
+      if (Blockly.Blocks['variables_get']) {
+        block.setAttribute('gap', 8);
+      }
+      var field = goog.dom.createDom('field', null, variableList[i]);
+      field.setAttribute('name', 'VAR');
+      block.appendChild(field);
+      xmlList.push(block);
+    }
+  }
+
+  if (xmlList.length > 0 && Blockly.Blocks['variables_set'] &&
+      Blockly.Blocks['variables_get']) {
+    xmlList[xmlList.length - 1].setAttribute('gap', 40);
+  }
+
+  if (Blockly.Blocks['variables_set']) {
+    for (var i = 0; i < variableList.length; i++) {
       // <block type="variables_set" gap="8">
       //   <field name="VAR">item</field>
       // </block>
@@ -121,21 +143,8 @@ Blockly.Variables.flyoutCategory = function(workspace) {
       block.appendChild(field);
       xmlList.push(block);
     }
-    if (Blockly.Blocks['variables_get']) {
-      // <block type="variables_get" gap="24">
-      //   <field name="VAR">item</field>
-      // </block>
-      var block = goog.dom.createDom('block');
-      block.setAttribute('type', 'variables_get');
-      if (Blockly.Blocks['variables_set']) {
-        block.setAttribute('gap', 24);
-      }
-      var field = goog.dom.createDom('field', null, variableList[i]);
-      field.setAttribute('name', 'VAR');
-      block.appendChild(field);
-      xmlList.push(block);
-    }
   }
+
   return xmlList;
 };
 

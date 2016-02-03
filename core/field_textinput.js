@@ -326,3 +326,23 @@ Blockly.FieldTextInput.nonnegativeIntegerValidator = function(text) {
   }
   return n;
 };
+
+/**
+ * Ensure that only a cell may be entered.
+ * @param {string} text The user's text.
+ * @return {?string} A string representing a valid spreadsheet cell coordinate,
+ * or null if invalid.
+ */
+Blockly.FieldTextInput.cellValidator = function(text) {
+  if (text === null) {
+    return null;
+  }
+  text = String(text);
+  // A cell is a string of capital letters followed by a number.
+  text = text.toLocaleUpperCase();
+  // Strip out spaces.
+  text = text.replace(/\s/g, '');
+
+  var CELL_REGEX = /^[A-Z]+[0-9]+$/g;
+  return CELL_REGEX.test(text) ? text : null;
+};
