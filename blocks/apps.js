@@ -2,7 +2,7 @@
  * @license
  * Visual Blocks Editor
  *
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  * https://developers.google.com/blockly/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,36 +39,37 @@ Blockly.Blocks.apps.EMAIL_HUE = 55;
 Blockly.Msg.APPS_DUMMY_TOOLTIP = 'Dummy Tooltip';
 Blockly.Msg.APPS_DUMMY_HELPURL = '';
 
-var MSG_APPS_CELL_BY_COORDS_TOOLTIP = (
+var MSG_APPS_CELL_BY_COORDS_TOOLTIP =
   'Coordinates of a cell in the active sheet, set by entering the column ' +
-  'letter and the row number separately. Variables can be used.');
-var MSG_APPS_CELL_BY_COORDS_AND_SHEET_NAME_TOOLTIP = (
+  'letter and the row number separately. Variables can be used.';
+var MSG_APPS_CELL_BY_COORDS_AND_SHEET_NAME_TOOLTIP =
   'Coordinates of a cell, set by entering the column letter and the row ' +
-  'number separately. Variables can be used.');
-var MSG_APPS_CELL_BY_HEADER_AND_ROW_NUMBER_TOOLTIP = (
+  'number separately. Variables can be used.';
+var MSG_APPS_CELL_BY_HEADER_AND_ROW_NUMBER_TOOLTIP =
   'Coordinates of a cell in the active sheet, set by entering the column ' +
-  'header and the row number separately.');
-var MSG_APPS_CELL_TOOLTIP = (
-  'Coordinates of a cell in the active sheet.');
+  'header and the row number separately.';
+var MSG_APPS_CELL_TOOLTIP =
+  'Coordinates of a cell in the active sheet.';
 var MSG_APPS_CREATE_SHEET_TOOLTIP = 'Create a new sheet.';
-var MSG_APPS_GET_CELL_VALUE_TOOLTIP = (
-  'Get the value contained in a spreadsheet cell.');
-var MSG_APPS_GET_ENTIRE_RANGE_TOOLTIP = (
-  'Get the range of non-empty cells in the spreadsheet.')
-var MSG_APPS_GET_RANGE_TOOLTIP = (
-  'Get a range of cells in the spreadsheet.');
-var MSG_APPS_ON_CLICK_TOOLTIP = (
-  'Perform an action when the  ▶  button is clicked.');
-var MSG_APPS_SEND_EMAIL_TOOLTIP = (
+var MSG_APPS_GET_CELL_VALUE_TOOLTIP =
+  'Get the value contained in a spreadsheet cell.';
+var MSG_APPS_GET_ENTIRE_RANGE_TOOLTIP =
+  'Get the range of non-empty cells in the spreadsheet.';
+var MSG_APPS_GET_RANGE_TOOLTIP =
+  'Get a range of cells in the spreadsheet.';
+var MSG_APPS_ON_CLICK_TOOLTIP =
+  'Perform an action when the  ▶  button is clicked.';
+var MSG_APPS_SEND_EMAIL_TOOLTIP =
   'Send an email to the given email address with the given subject and ' +
-  'message.');
-var MSG_APPS_SET_CELL_BACKGROUND_COLOUR_TOOLTIP = (
-  'Sets the background colour of a cell in a spreadsheet.');
-var MSG_APPS_SET_CELL_VALUE_TOOLTIP = (
-  'Sets the value of a cell in a spreadsheet.');
+  'message.';
+var MSG_APPS_SET_CELL_BACKGROUND_COLOUR_TOOLTIP =
+  'Sets the background colour of a cell in a spreadsheet.';
+var MSG_APPS_SET_CELL_VALUE_TOOLTIP =
+  'Sets the value of a cell in a spreadsheet.';
 
-var APPS_FOR_EACH_RANGE_ROW_NUMBER = "row number";
-var APPS_FOR_EACH_RANGE_COLUMN_LETTER = "column letter";
+var APPS_FOR_EACH_RANGE_ROW_NUMBER = 'row number';
+var APPS_FOR_EACH_RANGE_COLUMN_LETTER = 'column letter';
+var MSG_APPS_ON_CLICK_DO = ': when  ▶  button is clicked, do:';
 
 Blockly.Blocks['apps_on_click'] = {
   /**
@@ -86,8 +87,7 @@ Blockly.Blocks['apps_on_click'] = {
     this.setColour(Blockly.Blocks.procedures.HUE);
     this.appendDummyInput()
         .appendField(nameField, 'FUNCNAME')
-        .appendField(
-          ': when  ▶  button is clicked, do:');
+        .appendField(MSG_APPS_ON_CLICK_DO);
     this.appendStatementInput('DO')
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
   },
@@ -131,16 +131,16 @@ Blockly.Blocks['apps_cell'] = {
     // We are looking for an explicit connection from the parent to a Cell
     // object. If this does not exist, and String is a valid connection, we
     // insert a "get value of cell" block in the middle.
-    if (parentConnection && parentConnection !== this.prevParentConnection_) {
+    if (parentConnection && parentConnection != this.prevParentConnection_) {
       if (parentConnection.check_ &&
-          parentConnection.check_.indexOf('Cell') !== -1) {
+          parentConnection.check_.indexOf('Cell') != -1) {
         this.prevParentConnection_ = parentConnection;
         return;
       }
 
       // If the parent block does not accept String input, bump the block.
       if (parentConnection.check_ &&
-          parentConnection.check_.indexOf('String') === -1) {
+          parentConnection.check_.indexOf('String') == -1) {
         this.setParent(null);
         parentConnection.sourceBlock_.bumpNeighbours_();
         this.prevParentConnection_ = null;
