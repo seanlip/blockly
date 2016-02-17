@@ -93,14 +93,12 @@ Blockly.JavaScript.AppsLibrary = {
 
 Blockly.JavaScript['apps_on_click'] = function(block) {
   var funcName = Blockly.JavaScript.variableDB_.getName(
-    block.getFieldValue('FUNCNAME'), Blockly.Procedures.NAME_TYPE);
+      block.getFieldValue('FUNCNAME'), Blockly.Procedures.NAME_TYPE);
 
   var onClickBody = Blockly.JavaScript.statementToCode(block, 'DO');
   onClickBody = Blockly.JavaScript.addLoopTrap(onClickBody, block.id);
-  return (
-    'function ' + funcName + '() {\n' +
-    onClickBody +
-    '}');
+  var code = 'function ' + funcName + '() {\n' + onClickBody + '}';
+  return code;
 };
 
 
@@ -117,7 +115,7 @@ Blockly.JavaScript['apps_cell'] = function(block) {
 Blockly.JavaScript['apps_cell_by_header_and_row_number'] = function(block) {
   var columnHeader = block.getFieldValue('COLUMNHEADER');
   var rowNumber = Blockly.JavaScript.valueToCode(
-    block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
 
   var functionName = Blockly.JavaScript.provideFunction_(
       'apps_get_range_from_column_header_and_row_number',
@@ -132,9 +130,9 @@ Blockly.JavaScript['apps_cell_by_header_and_row_number'] = function(block) {
 
 Blockly.JavaScript['apps_cell_by_coords'] = function(block) {
   var columnLetter = Blockly.JavaScript.valueToCode(
-    block, 'COLUMNLETTER', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'COLUMNLETTER', Blockly.JavaScript.ORDER_COMMA) || '';
   var rowNumber = Blockly.JavaScript.valueToCode(
-    block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
 
   return [
     'SpreadsheetApp.getActiveSheet().getRange(\n' +
@@ -144,9 +142,9 @@ Blockly.JavaScript['apps_cell_by_coords'] = function(block) {
 
 Blockly.JavaScript['apps_cell_by_coords_and_sheet_name'] = function(block) {
   var columnLetter = Blockly.JavaScript.valueToCode(
-    block, 'COLUMNLETTER', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'COLUMNLETTER', Blockly.JavaScript.ORDER_COMMA) || '';
   var rowNumber = Blockly.JavaScript.valueToCode(
-    block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
   var sheetName = block.getFieldValue('SHEETNAME');
 
   return [
@@ -159,7 +157,7 @@ Blockly.JavaScript['apps_cell_by_coords_and_sheet_name'] = function(block) {
 
 Blockly.JavaScript['apps_get_cell_value'] = function(block) {
   var cellRange = Blockly.JavaScript.valueToCode(
-    block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
   return [
     cellRange + '.getValues()[0][0]',
     Blockly.JavaScript.ORDER_ATOMIC
@@ -168,28 +166,28 @@ Blockly.JavaScript['apps_get_cell_value'] = function(block) {
 
 Blockly.JavaScript['apps_set_cell_value'] = function(block) {
   var cellRange = Blockly.JavaScript.valueToCode(
-    block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
   var value = Blockly.JavaScript.valueToCode(
-    block, 'CELLVALUE', Blockly.JavaScript.ORDER_ASSIGNMENT) || '';
+      block, 'CELLVALUE', Blockly.JavaScript.ORDER_ASSIGNMENT) || '';
   return cellRange + '.setValue(String(' + value + '));\n';
 };
 
 Blockly.JavaScript['apps_set_cell_background_colour'] = function(block) {
   var cellRange = Blockly.JavaScript.valueToCode(
-    block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
+      block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
   var colour = Blockly.JavaScript.valueToCode(
-    block, 'COLOUR', Blockly.JavaScript.ORDER_ASSIGNMENT) || '';
+      block, 'COLOUR', Blockly.JavaScript.ORDER_ASSIGNMENT) || '';
   return cellRange + '.setBackground(' + colour + ');\n';
 };
 
 Blockly.JavaScript['apps_entire_range'] = function(block) {
   var fromCell = '\'A1\'';
   var toCell = (
-    'SpreadsheetApp.getActiveSheet().getRange(\n' +
-    '  1, 1,\n' +
-    '  SpreadsheetApp.getActiveSheet().getLastRow(),\n' +
-    '  SpreadsheetApp.getActiveSheet().getLastColumn()\n' +
-    ').getA1Notation().substr(3)');
+      'SpreadsheetApp.getActiveSheet().getRange(\n' +
+      '  1, 1,\n' +
+      '  SpreadsheetApp.getActiveSheet().getLastRow(),\n' +
+      '  SpreadsheetApp.getActiveSheet().getLastColumn()\n' +
+      ').getA1Notation().substr(3)');
 
   var functionName = Blockly.JavaScript.provideFunction_(
       'apps_range_object',
@@ -203,9 +201,9 @@ Blockly.JavaScript['apps_entire_range'] = function(block) {
 
 Blockly.JavaScript['apps_range'] = function(block) {
   var fromCell = Blockly.JavaScript.valueToCode(
-    block, 'FROM', Blockly.JavaScript.ORDER_COMMA) + '.getA1Notation()';
+      block, 'FROM', Blockly.JavaScript.ORDER_COMMA) + '.getA1Notation()';
   var toCell = Blockly.JavaScript.valueToCode(
-    block, 'TO', Blockly.JavaScript.ORDER_COMMA) + '.getA1Notation()';
+      block, 'TO', Blockly.JavaScript.ORDER_COMMA) + '.getA1Notation()';
 
   var functionName = Blockly.JavaScript.provideFunction_(
       'apps_range_object',
@@ -222,7 +220,7 @@ Blockly.JavaScript['apps_range'] = function(block) {
 
 Blockly.JavaScript['apps_create_sheet'] = function(block) {
   var newSheetName = Blockly.JavaScript.valueToCode(
-    block, 'NAME', Blockly.JavaScript.ORDER_COMMA) || "'New Sheet'";
+      block, 'NAME', Blockly.JavaScript.ORDER_COMMA) || "'New Sheet'";
   // TODO(sll): Replace OLD_SHEET with a randomly-generated placeholder.
   return (
     'var OLD_SHEET = SpreadsheetApp.getActiveSheet();\n' +
@@ -237,7 +235,7 @@ Blockly.JavaScript['apps_for_each_range'] = function(block) {
   var variable0 = Blockly.JavaScript.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   var range = Blockly.JavaScript.valueToCode(
-    block, 'LIST', Blockly.JavaScript.ORDER_ASSIGNMENT);
+      block, 'LIST', Blockly.JavaScript.ORDER_ASSIGNMENT);
   var increment = '1';
   var branch = Blockly.JavaScript.statementToCode(block, 'DO');
   branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
@@ -252,25 +250,25 @@ Blockly.JavaScript['apps_for_each_range'] = function(block) {
 
   // Cache non-trivial values to variables to prevent repeated look-ups.
   var startVar = Blockly.JavaScript.variableDB_.getDistinctName(
-    variable0 + '_start', Blockly.Variables.NAME_TYPE);
+      variable0 + '_start', Blockly.Variables.NAME_TYPE);
   var firstFunc = (
-    axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
-    'getFirstRowNumber()' : 'getFirstColumnLetter()');
+      axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
+      'getFirstRowNumber()' : 'getFirstColumnLetter()');
   code += (
-    'var ' + startVar + ' = ' + range + '.' + firstFunc + ';\n');
+      'var ' + startVar + ' = ' + range + '.' + firstFunc + ';\n');
 
   var endVar = Blockly.JavaScript.variableDB_.getDistinctName(
-    variable0 + '_end', Blockly.Variables.NAME_TYPE);
+      variable0 + '_end', Blockly.Variables.NAME_TYPE);
   var lastFunc = (
-    axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
-    'getLastRowNumber()' : 'getLastColumnLetter()');
+      axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
+      'getLastRowNumber()' : 'getLastColumnLetter()');
   code += 'var ' + endVar + ' = ' + range + '.' + lastFunc + ';\n';
 
   var incCode = (
-    axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
-    variable0 + ' += 1' :
-    variable0 + ' = ' + getNextColumnLetterFunctionName +
-      '(' + variable0 + ')');
+      axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
+      variable0 + ' += 1' :
+      variable0 + ' = ' + getNextColumnLetterFunctionName +
+        '(' + variable0 + ')');
 
   // The != is to handle the column case.
   // TODO(sll): this is wrong; it needs to be <
@@ -283,12 +281,12 @@ Blockly.JavaScript['apps_for_each_range'] = function(block) {
 
 Blockly.JavaScript['apps_send_email'] = function(block) {
   var recipient = Blockly.JavaScript.valueToCode(
-    block, 'RECIPIENT', Blockly.JavaScript.ORDER_COMMA) || "''";
+      block, 'RECIPIENT', Blockly.JavaScript.ORDER_COMMA) || "''";
   var subject = Blockly.JavaScript.valueToCode(
-    block, 'SUBJECT', Blockly.JavaScript.ORDER_COMMA) || "''";
+      block, 'SUBJECT', Blockly.JavaScript.ORDER_COMMA) || "''";
   var message = Blockly.JavaScript.valueToCode(
-    block, 'MESSAGE', Blockly.JavaScript.ORDER_COMMA) || "''";
+      block, 'MESSAGE', Blockly.JavaScript.ORDER_COMMA) || "''";
   return (
-    'MailApp.sendEmail(' + recipient + ', ' + subject + ', ' + message +
-    ');\n');
+      'MailApp.sendEmail(' + recipient + ', ' + subject + ', ' + message +
+      ');\n');
 };

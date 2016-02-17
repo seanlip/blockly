@@ -48,6 +48,7 @@ var MSG_APPS_CELL_BY_COORDS_AND_SHEET_NAME_TOOLTIP =
 var MSG_APPS_CELL_BY_HEADER_AND_ROW_NUMBER_TOOLTIP =
   'Coordinates of a cell in the active sheet, set by entering the column ' +
   'header and the row number separately.';
+var MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN = 'Column Header';
 var MSG_APPS_CELL_TOOLTIP =
   'Coordinates of a cell in the active sheet.';
 var MSG_APPS_CREATE_SHEET_TOOLTIP = 'Create a new sheet.';
@@ -66,6 +67,10 @@ var MSG_APPS_SET_CELL_BACKGROUND_COLOUR_TOOLTIP =
   'Sets the background colour of a cell in a spreadsheet.';
 var MSG_APPS_SET_CELL_VALUE_TOOLTIP =
   'Sets the value of a cell in a spreadsheet.';
+var MSG_INVALID_COLUMN_HEADER_WARNING =
+  'Please select a valid column header from the dropdown menu.';
+
+var EMPTY_COLUMN_HEADER = '';
 
 var APPS_FOR_EACH_RANGE_ROW_NUMBER = 'row number';
 var APPS_FOR_EACH_RANGE_COLUMN_LETTER = 'column letter';
@@ -177,9 +182,14 @@ Blockly.Blocks['apps_cell_by_header_and_row_number'] = {
         {
           "type": "field_dropdown",
           "name": "COLUMNHEADER",
-          "options": GLOBALS.COLUMN_HEADERS.map(function(header) {
-            return [header, header];
-          })
+          /* Add a dummy column header at the top. */
+          "options": [
+            [MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN, EMPTY_COLUMN_HEADER]
+          ].concat(
+            GLOBALS.COLUMN_HEADERS.map(function(header) {
+              return [header, header];
+            })
+          )
         },
         {
           "type": "input_value",
@@ -199,10 +209,18 @@ Blockly.Blocks['apps_cell_by_header_and_row_number'] = {
   /**
    * Called whenever anything on the workspace changes. Just like apps_cell,
    * this adds a "get value of" adapter if the output is connected to something
-   * which doesn't expect a Cell.
+   * which doesn't expect a Cell. Also adds a warning if the column header used
+   * is invalid.
    * @this Blockly.Block
    */
-  onchange: Blockly.Blocks['apps_cell'].onchange
+  onchange: function() {
+    Blockly.Blocks['apps_cell'].onchange.apply(this);
+
+    var warningMessage = (
+        this.getFieldValue('COLUMNHEADER') == EMPTY_COLUMN_HEADER ?
+        MSG_INVALID_COLUMN_HEADER_WARNING : null);
+    this.setWarningText(warningMessage);
+  }
 };
 
 Blockly.Blocks['apps_cell_by_coords'] = {
