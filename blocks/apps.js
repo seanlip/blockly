@@ -158,8 +158,8 @@ Blockly.Blocks['apps_cell'] = {
       this.setParent(null);
 
       var adapterBlock = workspace.newBlock('apps_get_cell_value');
-      parentConnection.connect(adapterBlock.outputConnection);
-      adapterBlock.inputList[0].connection.connect(this.outputConnection);
+      adapterBlock.outputConnection.connect(parentConnection);
+      this.outputConnection.connect(adapterBlock.inputList[0].connection);
 
       adapterBlock.initSvg();
       adapterBlock.render(true);

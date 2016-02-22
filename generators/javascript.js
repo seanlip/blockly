@@ -146,7 +146,14 @@ Blockly.JavaScript.finish = function(code) {
   delete Blockly.JavaScript.definitions_;
   delete Blockly.JavaScript.functionNames_;
   Blockly.JavaScript.variableDB_.reset();
-  return definitions.join('\n\n') + '\n\n\n' + code;
+
+  var finalCode = code;
+  var definitionsCode = definitions.join('\n\n');
+  if (definitionsCode) {
+    finalCode += '\n\n\n' +
+        '// ADDITIONAL HELPER CODE\n\n' + definitionsCode;
+  }
+  return finalCode;
 };
 
 /**

@@ -80,7 +80,16 @@ Blockly.JavaScript.AppsLibrary = {
     '  return newReversedString.split("").reverse().join("");',
     '}'
   ],
-  getRangeFromColumnHeaderAndRowNumber: [
+  isColumnLetterAtMost: [
+    'function ' + Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
+      '(columnLetter, targetLetter) {',
+    '  return (',
+    '    columnLetter.length < targetLetter.length ||',
+    '    (columnLetter.length == targetLetter.length &&',
+    '      columnLetter <= targetLetter));',
+    '}'
+  ],
+  getCellFromHeaderAndRowNumber: [
     'function ' + Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
       '(sheet, columnHeader, rowNumber) {',
     '  var allHeaders = sheet.getDataRange().getValues()[0];',
@@ -118,8 +127,8 @@ Blockly.JavaScript['apps_cell_by_header_and_row_number'] = function(block) {
       block, 'ROWNUMBER', Blockly.JavaScript.ORDER_COMMA) || '';
 
   var functionName = Blockly.JavaScript.provideFunction_(
-      'apps_get_range_from_column_header_and_row_number',
-      Blockly.JavaScript.AppsLibrary.getRangeFromColumnHeaderAndRowNumber);
+      'apps_get_cell_from_header_and_row_number',
+      Blockly.JavaScript.AppsLibrary.getCellFromHeaderAndRowNumber);
 
   return [
     functionName + "(SpreadsheetApp.getActiveSheet(), '" +
@@ -159,7 +168,7 @@ Blockly.JavaScript['apps_get_cell_value'] = function(block) {
   var cellRange = Blockly.JavaScript.valueToCode(
       block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
   return [
-    cellRange + '.getValues()[0][0]',
+    cellRange + '.getValue()',
     Blockly.JavaScript.ORDER_ATOMIC
   ];
 };
@@ -169,7 +178,7 @@ Blockly.JavaScript['apps_set_cell_value'] = function(block) {
       block, 'CELL', Blockly.JavaScript.ORDER_COMMA) || '';
   var value = Blockly.JavaScript.valueToCode(
       block, 'CELLVALUE', Blockly.JavaScript.ORDER_ASSIGNMENT) || '';
-  return cellRange + '.setValue(String(' + value + '));\n';
+  return cellRange + '.setValue(' + value + ');\n';
 };
 
 Blockly.JavaScript['apps_set_cell_background_colour'] = function(block) {
@@ -184,17 +193,17 @@ Blockly.JavaScript['apps_entire_range'] = function(block) {
   var fromCell = '\'A1\'';
   var toCell = (
       'SpreadsheetApp.getActiveSheet().getRange(\n' +
-      '  1, 1,\n' +
       '  SpreadsheetApp.getActiveSheet().getLastRow(),\n' +
       '  SpreadsheetApp.getActiveSheet().getLastColumn()\n' +
-      ').getA1Notation().substr(3)');
+      ').getA1Notation()');
 
   var functionName = Blockly.JavaScript.provideFunction_(
       'apps_range_object',
       Blockly.JavaScript.AppsLibrary.RangeObject);
 
   return [
-    'new ' + functionName + '(' + fromCell + ', ' + toCell + ')',
+    'new ' + functionName + '(\n' +
+    '  ' + fromCell + ', ' + toCell + ')',
     Blockly.JavaScript.ORDER_ATOMIC
   ];
 };
@@ -219,14 +228,17 @@ Blockly.JavaScript['apps_range'] = function(block) {
 
 
 Blockly.JavaScript['apps_create_sheet'] = function(block) {
+  var oldSheetNameVar = Blockly.JavaScript.variableDB_.getDistinctName(
+      'oldSheetName', Blockly.Variables.NAME_TYPE);
   var newSheetName = Blockly.JavaScript.valueToCode(
       block, 'NAME', Blockly.JavaScript.ORDER_COMMA) || "'New Sheet'";
-  // TODO(sll): Replace OLD_SHEET with a randomly-generated placeholder.
+
   return (
-    'var OLD_SHEET = SpreadsheetApp.getActiveSheet();\n' +
+    '\n' +
+    'var ' + oldSheetNameVar + ' = SpreadsheetApp.getActiveSheet();\n' +
     'SpreadsheetApp.getActiveSpreadsheet().insertSheet(' +
       newSheetName + ');\n' +
-    'SpreadsheetApp.setActiveSheet(OLD_SHEET);\n');
+    'SpreadsheetApp.setActiveSheet(' + oldSheetNameVar + ');\n');
 };
 
 
@@ -234,8 +246,6 @@ Blockly.JavaScript['apps_for_each_range'] = function(block) {
   // For loop.
   var variable0 = Blockly.JavaScript.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-  var range = Blockly.JavaScript.valueToCode(
-      block, 'LIST', Blockly.JavaScript.ORDER_ASSIGNMENT);
   var increment = '1';
   var branch = Blockly.JavaScript.statementToCode(block, 'DO');
   branch = Blockly.JavaScript.addLoopTrap(branch, block.id);
@@ -246,36 +256,46 @@ Blockly.JavaScript['apps_for_each_range'] = function(block) {
       'apps_get_next_column_letter',
       Blockly.JavaScript.AppsLibrary.getNextColumnLetter);
 
+  var isColumnLetterAtMostFunctionName = Blockly.JavaScript.provideFunction_(
+      'apps_is_column_letter_at_most',
+      Blockly.JavaScript.AppsLibrary.isColumnLetterAtMost);
+
   var code = '';
 
   // Cache non-trivial values to variables to prevent repeated look-ups.
-  var startVar = Blockly.JavaScript.variableDB_.getDistinctName(
-      variable0 + '_start', Blockly.Variables.NAME_TYPE);
-  var firstFunc = (
-      axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
-      'getFirstRowNumber()' : 'getFirstColumnLetter()');
-  code += (
-      'var ' + startVar + ' = ' + range + '.' + firstFunc + ';\n');
+  var rangeVar = Blockly.JavaScript.variableDB_.getDistinctName(
+      'loop_range', Blockly.Variables.NAME_TYPE);
+  var rangeCode = Blockly.JavaScript.valueToCode(
+      block, 'LIST', Blockly.JavaScript.ORDER_ASSIGNMENT);
+  code += 'var ' + rangeVar + ' = ' + rangeCode + ';\n';
 
   var endVar = Blockly.JavaScript.variableDB_.getDistinctName(
       variable0 + '_end', Blockly.Variables.NAME_TYPE);
   var lastFunc = (
       axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
       'getLastRowNumber()' : 'getLastColumnLetter()');
-  code += 'var ' + endVar + ' = ' + range + '.' + lastFunc + ';\n';
+  code += 'var ' + endVar + ' = ' + rangeVar + '.' + lastFunc + ';\n';
+
+  var startExpression = rangeVar + '.' + (
+      axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
+      'getFirstRowNumber()' : 'getFirstColumnLetter()');
+
+  var comparisonCode = (
+      axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
+      variable0 + ' <= ' + endVar :
+      isColumnLetterAtMostFunctionName + '(' + variable0 +
+        ', ' + endVar + ')');
 
   var incCode = (
       axis === APPS_FOR_EACH_RANGE_ROW_NUMBER ?
-      variable0 + ' += 1' :
+      variable0 + '++' :
       variable0 + ' = ' + getNextColumnLetterFunctionName +
         '(' + variable0 + ')');
 
-  // The != is to handle the column case.
-  // TODO(sll): this is wrong; it needs to be <
-  code += 'for (' + variable0 + ' = ' + startVar + ';\n' +
-      '     ' + variable0 + ' != ' + endVar + ';\n' +
+  code += 'for (' + variable0 + ' = ' + startExpression + ';\n' +
+      '     ' + comparisonCode + ';\n' +
       '     ' + incCode + ') {\n' +
-      branch + '}\n';
+      branch + '}\n\n';
   return code;
 };
 
