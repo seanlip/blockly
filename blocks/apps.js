@@ -48,7 +48,7 @@ var MSG_APPS_CELL_BY_COORDS_AND_SHEET_NAME_TOOLTIP =
 var MSG_APPS_CELL_BY_HEADER_AND_ROW_NUMBER_TOOLTIP =
   'Coordinates of a cell in the active sheet, set by entering the column ' +
   'header and the row number separately.';
-var MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN = 'Column Header';
+var MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN = 'Choose Column...';
 var MSG_APPS_CELL_TOOLTIP =
   'Coordinates of a cell in the active sheet.';
 var MSG_APPS_CREATE_SHEET_TOOLTIP = 'Create a new sheet.';
@@ -182,14 +182,23 @@ Blockly.Blocks['apps_cell_by_header_and_row_number'] = {
         {
           "type": "field_dropdown",
           "name": "COLUMNHEADER",
-          /* Add a dummy column header at the top. */
-          "options": [
-            [MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN, EMPTY_COLUMN_HEADER]
-          ].concat(
-            GLOBALS.COLUMN_HEADERS.map(function(header) {
+          "options": function() {
+            var optionsArray = GLOBALS.COLUMN_HEADERS.map(function(header) {
               return [header, header];
-            })
-          )
+            });
+
+            /*
+              Add a dummy column header at the top, if no choice has been
+              selected yet.
+            */
+            if (!this.value_) {
+              optionsArray.unshift([
+                MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN, EMPTY_COLUMN_HEADER
+              ]);
+            }
+
+            return optionsArray;
+          }
         },
         {
           "type": "input_value",
@@ -216,8 +225,18 @@ Blockly.Blocks['apps_cell_by_header_and_row_number'] = {
   onchange: function() {
     Blockly.Blocks['apps_cell'].onchange.apply(this);
 
+    var fieldOptions = this.getField('COLUMNHEADER').getOptions_().map(
+      function(optionPair) {
+        return optionPair[1];
+      }
+    );
+
+    var fieldValueIsInvalid = (
+        this.getFieldValue('COLUMNHEADER') == EMPTY_COLUMN_HEADER ||
+        fieldOptions.indexOf(this.getFieldValue('COLUMNHEADER')) == -1);
+
     var warningMessage = (
-        this.getFieldValue('COLUMNHEADER') == EMPTY_COLUMN_HEADER ?
+        fieldValueIsInvalid ?
         MSG_INVALID_COLUMN_HEADER_WARNING : null);
     this.setWarningText(warningMessage);
   }
@@ -481,7 +500,7 @@ Blockly.Blocks['apps_for_each_range'] = {
         {
           "type": "field_variable",
           "name": "VAR",
-          "variable": 'rowNumber'
+          "variable": 'i'
         },
         {
           "type": "input_value",
