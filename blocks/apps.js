@@ -48,7 +48,7 @@ var MSG_APPS_CELL_BY_COORDS_AND_SHEET_NAME_TOOLTIP =
 var MSG_APPS_CELL_BY_HEADER_AND_ROW_NUMBER_TOOLTIP =
   'Coordinates of a cell in the active sheet, set by entering the column ' +
   'header and the row number separately.';
-var MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN = 'Choose Column...';
+var MSG_APPS_CELL_COLUMN_HEADER_DROPDOWN = 'Choose Column…';
 var MSG_APPS_CELL_TOOLTIP =
   'Coordinates of a cell in the active sheet.';
 var MSG_APPS_CREATE_SHEET_TOOLTIP = 'Create a new sheet.';
