@@ -1,0 +1,18 @@
+SETUP INSTRUCTIONS
+==================
+
+In the parent folder of blockly, run
+
+    git clone https://github.com/mudcube/MIDI.js.git
+
+to clone the MIDI.js library.
+
+
+DEMO LOADING INSTRUCTIONS
+=========================
+
+You need to run
+
+    python -m SimpleHTTPServer 8888
+
+(the port number can be changed) from the parent of the blockly folder. This is because the soundfonts for MIDI.js need to be served from localhost and not directly from the file system. See http://stackoverflow.com/a/33801287 for details.

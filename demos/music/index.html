@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Blockly Music demo</title>
+<script src="../../blockly_uncompressed.js"></script>
+<script src="../../generators/javascript.js"></script>
+<script src="../../generators/javascript/logic.js"></script>
+<script src="../../generators/javascript/loops.js"></script>
+<script src="../../generators/javascript/math.js"></script>
+<script src="../../generators/javascript/text.js"></script>
+<script src="../../generators/javascript/lists.js"></script>
+<script src="../../generators/javascript/music.js"></script>
+<script src="../../generators/javascript/variables.js"></script>
+<script src="../../generators/javascript/procedures.js"></script>
+<script src="../../msg/messages.js"></script>
+<script src="../../blocks/logic.js"></script>
+<script src="../../blocks/loops.js"></script>
+<script src="../../blocks/math.js"></script>
+<script src="../../blocks/text.js"></script>
+<script src="../../blocks/lists.js"></script>
+<script src="../../blocks/music.js"></script>
+<script src="../../blocks/variables.js"></script>
+<script src="../../blocks/procedures.js"></script>
+
+<!-- Libraries for MIDI playback. -->
+<script src="../../../MIDI.js/build/MIDI.js"></script>
+<script src="../../../MIDI.js/inc/shim/Base64binary.js"></script>
+
+<script>
+  'use strict';
+
+  // Depending on the URL argument, render as LTR or RTL.
+  var rtl = (document.location.search == '?rtl');
+  var workspace = null;
+
+  function start() {
+    var toolbox = document.getElementById('toolbox');
+    workspace = Blockly.inject('blocklyDiv',
+            {comments: true,
+             disable: true,
+             collapse: true,
+             grid:
+               {spacing: 25,
+                length: 3,
+                colour: '#ccc',
+                snap: true},
+             maxBlocks: Infinity,
+             media: '../../media/',
+             readOnly: false,
+             rtl: rtl,
+             scrollbars: true,
+             toolbox: toolbox,
+             zoom:
+               {controls: true,
+                wheel: true,
+                startScale: 1.0,
+                maxScale: 4,
+                minScale: .25,
+                scaleSpeed: 1.1
+               },
+            });
+
+    // Decrease the hover time for tooltips.
+    Blockly.Tooltip.HOVER_MS = 150;
+
+    // Add a 'start hat' for event blocks.
+    Blockly.BlockSvg.START_HAT = true;
+
+    var defaultBlocks = document.getElementById('blocklyDefault');
+    Blockly.Xml.domToWorkspace(workspace, defaultBlocks);
+
+    MIDI.loadPlugin({
+      soundfontUrl: '../../../MIDI.js/examples/soundfont/',
+      instrument: 'acoustic_grand_piano',
+      callback: function() {}
+    });
+
+    // Load the first challenge after the page has loaded.
+    setTimeout(function() {
+      setChallenge(1);
+    });
+  }
+
+  function toCode(lang) {
+    var output = document.getElementById('importExport');
+    output.value = Blockly[lang].workspaceToCode(workspace);
+  }
+
+  var CHALLENGES = [{
+    htmlInstructions: 'Play the sequence C-E-G in order.',
+    expectedBuffer: [{
+      midiValues: [60],
+      durationInSecs: 1,
+      delayInSecs: 0
+    }, {
+      midiValues: [64],
+      durationInSecs: 1,
+      delayInSecs: 1
+    }, {
+      midiValues: [67],
+      durationInSecs: 1,
+      delayInSecs: 2
+    }]
+  }, {
+    htmlInstructions: 'Play four loops of the sequence C-E-G.',
+    expectedBuffer: [{
+      midiValues: [60],
+      durationInSecs: 1,
+      delayInSecs: 0
+    }, {
+      midiValues: [64],
+      durationInSecs: 1,
+      delayInSecs: 1
+    }, {
+      midiValues: [67],
+      durationInSecs: 1,
+      delayInSecs: 2
+    }, {
+      midiValues: [60],
+      durationInSecs: 1,
+      delayInSecs: 3
+    }, {
+      midiValues: [64],
+      durationInSecs: 1,
+      delayInSecs: 4
+    }, {
+      midiValues: [67],
+      durationInSecs: 1,
+      delayInSecs: 5
+    }, {
+      midiValues: [60],
+      durationInSecs: 1,
+      delayInSecs: 6
+    }, {
+      midiValues: [64],
+      durationInSecs: 1,
+      delayInSecs: 7
+    }, {
+      midiValues: [67],
+      durationInSecs: 1,
+      delayInSecs: 8
+    }, {
+      midiValues: [60],
+      durationInSecs: 1,
+      delayInSecs: 9
+    }, {
+      midiValues: [64],
+      durationInSecs: 1,
+      delayInSecs: 10
+    }, {
+      midiValues: [67],
+      durationInSecs: 1,
+      delayInSecs: 11
+    }]
+  }];
+
+  var currentChallengeIndex = 0;
+
+  function setChallenge(challengeNumber) {
+    currentChallengeIndex = challengeNumber - 1;
+    document.getElementById('instructions').textContent =
+        CHALLENGES[currentChallengeIndex].htmlInstructions;
+  }
+
+  function clearGrade() {
+    document.getElementById('grade').textContent = '';
+  }
+
+  function gradeChallenge() {
+    // TODO(sll): This needs to be more robust -- e.g.,
+    // order should not matter.
+    var correct = true;
+    var expectedBuffer = CHALLENGES[currentChallengeIndex].expectedBuffer;
+    if (notesBuffer.length !== expectedBuffer.length) {
+      correct = false;
+    } else {
+      for (var i = 0; i < notesBuffer.length; i++) {
+        // TODO(sll): This needs to check each note, not just the first one.
+        if (notesBuffer[i].midiValues[0] != expectedBuffer[i].midiValues[0] ||
+            notesBuffer[i].durationInSecs != expectedBuffer[i].durationInSecs ||
+            notesBuffer[i].delayInSecs != expectedBuffer[i].delayInSecs) {
+          correct = false;
+          break;
+        }
+      }
+    }
+
+    document.getElementById('grade').textContent = 
+        correct ? 'Correct!' : 'Incorrect.';
+  }
+
+  var _MIDI_CHANNEL = 0;
+  var _MIDI_VELOCITY = 127;
+  var _SECS_TO_MILLISECS = 1000.0;
+
+  var notesBuffer = [];
+  var currentTimeInSecs = 0;
+
+  function getMidiValueFromPitch(pitch) {
+    var PITCHES_TO_MIDI_VALUES = {
+      B: 71,
+      A: 69,
+      G: 67,
+      F: 65,
+      E: 64,
+      D: 62,
+      C: 60
+    };
+
+    if (PITCHES_TO_MIDI_VALUES.hasOwnProperty(pitch)) {
+      return PITCHES_TO_MIDI_VALUES[pitch];
+    } else {
+      // TODO(sll): change this.
+      return 5;
+    }
+  }
+
+  function addNotesToBuffer(pitches, durationInSecs) {
+    var midiValues = [];
+    pitches.forEach(function(pitch) {
+      midiValues.push(getMidiValueFromPitch(pitch));
+    });
+
+    notesBuffer.push({
+      midiValues: midiValues,
+      durationInSecs: durationInSecs,
+      delayInSecs: currentTimeInSecs
+    });
+    currentTimeInSecs += durationInSecs;
+  }
+
+  function playBuffer() {
+    clearGrade();
+
+    notesBuffer.forEach(function(note) {
+      setTimeout(function() {
+        playNote(note.midiValues, note.durationInSecs);
+      }, note.delayInSecs * _SECS_TO_MILLISECS);
+    });
+
+    setTimeout(function() {
+      gradeChallenge();
+    }, currentTimeInSecs * _SECS_TO_MILLISECS)
+  }
+
+  function playNote(midiValues, durationInSecs) {
+    MIDI.chordOn(
+      _MIDI_CHANNEL, midiValues, _MIDI_VELOCITY, 0);
+    MIDI.chordOff(
+      _MIDI_CHANNEL, midiValues, durationInSecs);
+  }
+
+  function runCode() {
+    // Generate JavaScript code and run it.
+    window.LoopTrap = 1000;
+    Blockly.JavaScript.INFINITE_LOOP_TRAP =
+        'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+
+    notesBuffer = [];
+    currentTimeInSecs = 0;
+    try {
+      eval(code);
+    } catch (e) {
+      alert(e);
+    }
+
+    playBuffer();
+  }
+</script>
+
+<style>
+html, body {
+  height: 100%;
+}
+body {
+  background-color: #fff;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+h1 {
+  font-weight: normal;
+  font-size: 140%;
+}
+#blocklyDiv {
+  float: right;
+  height: 95%;
+  width: 70%;
+}
+#collaborators {
+  float: right;
+  width: 30px;
+  margin-left: 10px;
+}
+#collaborators > img {
+  margin-right: 5px;
+  height: 30px;
+  padding-bottom: 5px;
+  width: 30px;
+  border-radius: 3px;
+}
+#importExport {
+  font-family: monospace;
+}
+</style>
+</head>
+<body onload="start()">
+
+  <div id="collaborators"></div>
+
+  <div id="blocklyDiv"></div>
+
+  <xml id="blocklyDefault">
+  </xml>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Music" colour="20">
+      <block type="music_play_note"></block>
+      <block type="music_play_note_with_duration"></block>
+    </category>
+
+    <category name="Text" colour="160">
+      <block type="text"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+
+    <category name="Math" colour="230">
+      <block type="math_number" gap="32"></block>
+      <block type="math_arithmetic">
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant"></block>
+      <block type="math_number_property">
+        <value name="NUMBER_TO_CHECK">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_change">
+        <value name="DELTA">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_round">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+
+    <sep></sep>
+
+    <category name="Logic" colour="210">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_ternary"></block>
+    </category>
+
+    <category name="Loops" colour="120">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+
+    <category name="Variables" colour="330" custom="VARIABLE"></category>
+
+    <category name="Functions" colour="290" custom="PROCEDURE"></category>
+  </xml>
+
+  <h1>Blockly Music Demo</h1>
+
+  <p>
+    <strong>Challenges:</strong>
+    <a href="#" onclick="setChallenge(1); return false;">1</a>
+    <a href="#" onclick="setChallenge(2); return false;">2</a>
+  </p>
+
+  <p>
+    <div id="instructions">
+    </div>
+  </p>
+
+  <p>
+    <input type="button" value="Run" onclick="runCode()">
+    <span id="grade"></span>
+  </p>
+
+  <p>
+    <input type="button" value="View JavaScript code" onclick="toCode('JavaScript')">
+    <br><br>
+    <textarea id="importExport" style="width: 26%; height: 12em"></textarea>
+  </p>
+</body>
+</html>
