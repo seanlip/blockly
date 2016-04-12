@@ -41,33 +41,35 @@ var MusicPlayer = function() {
 };
 
 MusicPlayer.prototype.reset = function() {
-  this.lines_ = {};
-  this.lines_[CONSTANTS.LINE_BASS] = {
-    chords: [],
-    currentTimeInBeats: 0.0
-  };
-  this.lines_[CONSTANTS.LINE_MELODY] = {
-    chords: [],
-    currentTimeInBeats: 0.0
-  };
-
-  if (this.activeTimeouts && this.activeTimeouts.length > 0) {
+  MIDI.Player.stop();
+  if (this.activeTimeouts_ && this.activeTimeouts_.length > 0) {
     this.activeTimeouts_.forEach(function(timeout) {
       clearTimeout(timeout);
     });
   }
+
   this.activeTimeouts_ = [];
+
+  this.lines_ = {};
+  this.lines_[CONSTANTS.LINE_BASS] = {
+    chords: [],
+    currentBeat: 0.0
+  };
+  this.lines_[CONSTANTS.LINE_MELODY] = {
+    chords: [],
+    currentBeat: 0.0
+  };
 };
 
 MusicPlayer.prototype.getBassLineDurationInMsecs = function() {
   return (
-      this.lines_[CONSTANTS.LINE_BASS].currentTimeInBeats *
+      this.lines_[CONSTANTS.LINE_BASS].currentBeat *
       CONSTANTS.MILLISECS_PER_BEAT);
 };
 
 MusicPlayer.prototype.getBassLine = function() {
-  // TODO(sll): Make a copy instead.
-  return this.lines_[CONSTANTS.LINE_BASS].chords;
+  // Returns a deep clone.
+  return JSON.parse(JSON.stringify(this.lines_[CONSTANTS.LINE_BASS].chords));
 };
 
 MusicPlayer.prototype.addChord_ = function(
@@ -79,9 +81,18 @@ MusicPlayer.prototype.addChord_ = function(
   this.lines_[lineName].chords.push({
     midiPitches: midiPitches,
     durationInBeats: durationInBeats,
-    delayInBeats: this.lines_[lineName].currentTimeInBeats
+    delayInBeats: this.lines_[lineName].currentBeat
   });
-  this.lines_[lineName].currentTimeInBeats += durationInBeats;
+
+  this.lines_[lineName].currentBeat += durationInBeats;
+};
+
+MusicPlayer.prototype.addRest_ = function(lineName, durationInBeats) {
+  if (!this.lines_.hasOwnProperty(lineName)) {
+    throw Error('Invalid line name: ' + lineName);
+  }
+
+  this.lines_[lineName].currentBeat += durationInBeats;
 };
 
 MusicPlayer.prototype.addBassChord = function(
@@ -119,8 +130,13 @@ MusicPlayer.prototype.playAllLines = function() {
 
 MusicPlayer.prototype.setMelody = function(melody) {
   var that = this;
-  melody.forEach(function(noteAndLength) {
-    that.addChord_(
-      CONSTANTS.LINE_MELODY, [noteAndLength[0]], noteAndLength[1]);
+  melody.forEach(function(pitchesAndDuration) {
+    if (pitchesAndDuration[0] === null) {
+      that.addRest_(
+          CONSTANTS.LINE_MELODY, pitchesAndDuration[1]);
+    } else {
+      that.addChord_(
+          CONSTANTS.LINE_MELODY, pitchesAndDuration[0], pitchesAndDuration[1]);
+    }
   });
 };
