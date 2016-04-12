@@ -18,7 +18,8 @@
  */
 
 /**
- * @fileoverview Utility functions for a music game for screen-reader users.
+ * @fileoverview Utility functions and classes for a music game for
+ *               screen-reader users.
  * @author sll@google.com (Sean Lip)
  */
 
@@ -29,6 +30,83 @@ var CONSTANTS = {
   LINE_MELODY: 'melody'
 };
 
+
+// MUSIC LINE OBJECT
+
+var MusicLine = function() {
+  this.chords_ = [];
+  this.currentBeat_ = 0.0;
+};
+
+MusicLine.prototype.getChords = function() {
+  return this.chords_;
+};
+
+MusicLine.prototype.getDurationInMsecs = function() {
+  return this.currentBeat_ * CONSTANTS.MILLISECS_PER_BEAT;
+};
+
+MusicLine.prototype.addChord = function(midiPitches, durationInBeats) {
+  this.chords_.push({
+    midiPitches: midiPitches,
+    durationInBeats: durationInBeats,
+    delayInBeats: this.currentBeat_
+  });
+
+  this.currentBeat_ += durationInBeats;
+};
+
+MusicLine.prototype.addRest = function(durationInBeats) {
+  this.currentBeat_ += durationInBeats;
+};
+
+// This method assumes that the lines are arranged in ascending order of
+// delayInBeats.
+MusicLine.prototype.isEqual = function(other) {
+  if (this.chords_.length !== other.chords_.length) {
+    return false;
+  }
+
+  for (var i = 0; i < this.chords_.length; i++) {
+    if (this.chords_[i].durationInBeats != other.chords_[i].durationInBeats ||
+        this.chords_[i].delayInBeats != other.chords_[i].delayInBeats) {
+      return false;
+    }
+
+    var thisChordPitches = this.chords_[i].midiPitches.concat().sort();
+    var otherChordPitches = other.chords_[i].midiPitches.concat().sort();
+    if (thisChordPitches.length != otherChordPitches.length) {
+      return false;
+    }
+
+    var mismatchedChord = thisChordPitches.some(function(pitch, index) {
+      return pitch != otherChordPitches[index];
+    });
+    if (mismatchedChord) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+MusicLine.prototype.setFromChordsAndDurations = function(chordsAndDurations) {
+  this.chords_ = [];
+  this.currentBeat_ = 0.0;
+
+  var that = this;
+  chordsAndDurations.forEach(function(chordAndDuration) {
+    if (chordAndDuration[0] === null) {
+      that.addRest(chordAndDuration[1]);
+    } else {
+      that.addChord(chordAndDuration[0], chordAndDuration[1]);
+    }
+  });
+};
+
+
+// MUSIC PLAYER OBJECT (SINGLETON)
+
 var MusicPlayer = function() {
   // Initialize the MIDI player.
   MIDI.loadPlugin({
@@ -37,106 +115,68 @@ var MusicPlayer = function() {
     callback: function() {}
   });
 
+  this.lines_ = {};
+  this.activeTimeouts_ = [];
+
   this.reset();
 };
 
 MusicPlayer.prototype.reset = function() {
   MIDI.Player.stop();
-  if (this.activeTimeouts_ && this.activeTimeouts_.length > 0) {
-    this.activeTimeouts_.forEach(function(timeout) {
-      clearTimeout(timeout);
-    });
-  }
-
-  this.activeTimeouts_ = [];
-
-  this.lines_ = {};
-  this.lines_[CONSTANTS.LINE_BASS] = {
-    chords: [],
-    currentBeat: 0.0
-  };
-  this.lines_[CONSTANTS.LINE_MELODY] = {
-    chords: [],
-    currentBeat: 0.0
-  };
-};
-
-MusicPlayer.prototype.getBassLineDurationInMsecs = function() {
-  return (
-      this.lines_[CONSTANTS.LINE_BASS].currentBeat *
-      CONSTANTS.MILLISECS_PER_BEAT);
-};
-
-MusicPlayer.prototype.getBassLine = function() {
-  // Returns a deep clone.
-  return JSON.parse(JSON.stringify(this.lines_[CONSTANTS.LINE_BASS].chords));
-};
-
-MusicPlayer.prototype.addChord_ = function(
-    lineName, midiPitches, durationInBeats) {
-  if (!this.lines_.hasOwnProperty(lineName)) {
-    throw Error('Invalid line name: ' + lineName);
-  }
-
-  this.lines_[lineName].chords.push({
-    midiPitches: midiPitches,
-    durationInBeats: durationInBeats,
-    delayInBeats: this.lines_[lineName].currentBeat
+  this.activeTimeouts_.forEach(function(timeout) {
+    clearTimeout(timeout);
   });
 
-  this.lines_[lineName].currentBeat += durationInBeats;
-};
-
-MusicPlayer.prototype.addRest_ = function(lineName, durationInBeats) {
-  if (!this.lines_.hasOwnProperty(lineName)) {
-    throw Error('Invalid line name: ' + lineName);
+  for (key in this.lines_) {
+    delete this.lines_[key];
   }
+  this.lines_[CONSTANTS.LINE_BASS] = new MusicLine();
+  this.lines_[CONSTANTS.LINE_MELODY] = new MusicLine();
 
-  this.lines_[lineName].currentBeat += durationInBeats;
+  this.activeTimeouts_ = [];
 };
 
-MusicPlayer.prototype.addBassChord = function(
-    midiPitches, durationInBeats) {
-  this.addChord_(CONSTANTS.LINE_BASS, midiPitches, durationInBeats);
+MusicPlayer.prototype.playNote_ = function(midiPitches, durationInBeats) {
+  var MIDI_CHANNEL = 0;
+  var MIDI_VELOCITY = 127;
+
+  MIDI.chordOn(MIDI_CHANNEL, midiPitches, MIDI_VELOCITY, 0);
+  MIDI.chordOff(MIDI_CHANNEL, midiPitches, durationInBeats);
 };
 
-MusicPlayer.prototype.playNote = function(midiPitches, durationInBeats) {
-  var _MIDI_CHANNEL = 0;
-  var _MIDI_VELOCITY = 127;
-
-  MIDI.chordOn(_MIDI_CHANNEL, midiPitches, _MIDI_VELOCITY, 0);
-  MIDI.chordOff(_MIDI_CHANNEL, midiPitches, durationInBeats);
-};
-
-MusicPlayer.prototype.playLines_ = function(linesToPlay) {
+MusicPlayer.prototype.playLines_ = function(
+    linesToPlay, onFinishBassLineCallback) {
   var that = this;
   linesToPlay.forEach(function(lineName) {
-    var line = that.lines_[lineName];
-    line.chords.forEach(function(chord) {
+    that.lines_[lineName].getChords().forEach(function(chord) {
       that.activeTimeouts_.push(setTimeout(function() {
-        that.playNote(chord.midiPitches, chord.durationInBeats);
+        that.playNote_(chord.midiPitches, chord.durationInBeats);
       }, chord.delayInBeats * CONSTANTS.MILLISECS_PER_BEAT));
     });
   });
-};
 
-MusicPlayer.prototype.playBassLine = function() {
-  this.playLines_([CONSTANTS.LINE_BASS]);
-};
-
-MusicPlayer.prototype.playAllLines = function() {
-  this.playLines_([CONSTANTS.LINE_BASS, CONSTANTS.LINE_MELODY]);
+  that.activeTimeouts_.push(setTimeout(
+    onFinishBassLineCallback,
+    that.lines_[CONSTANTS.LINE_BASS].getDurationInMsecs()));
 };
 
 MusicPlayer.prototype.setMelody = function(melody) {
-  var that = this;
-  melody.forEach(function(pitchesAndDuration) {
-    if (pitchesAndDuration[0] === null) {
-      that.addRest_(
-          CONSTANTS.LINE_MELODY, pitchesAndDuration[1]);
-    } else {
-      that.addChord_(
-          CONSTANTS.LINE_MELODY, pitchesAndDuration[0], pitchesAndDuration[1]);
-    }
-  });
+  this.lines_[CONSTANTS.LINE_MELODY].setFromChordsAndDurations(melody);
+};
+
+MusicPlayer.prototype.doesBassLineEqual = function(otherLine) {
+  return this.lines_[CONSTANTS.LINE_BASS].isEqual(otherLine);
+};
+
+MusicPlayer.prototype.addBassChord = function(midiPitches, durationInBeats) {
+  this.lines_[CONSTANTS.LINE_BASS].addChord(midiPitches, durationInBeats);
+};
+
+MusicPlayer.prototype.playBassLine = function(onFinishBassLineCallback) {
+  this.playLines_([CONSTANTS.LINE_BASS], onFinishBassLineCallback);
+};
+
+MusicPlayer.prototype.playAllLines = function(onFinishBassLineCallback) {
+  this.playLines_(
+    [CONSTANTS.LINE_BASS, CONSTANTS.LINE_MELODY], onFinishBassLineCallback);
 };

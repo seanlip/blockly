@@ -156,61 +156,35 @@
         CHALLENGES[currentChallengeIndex].htmlInstructions;
   }
 
-  function clearGrade() {
-    document.getElementById('grade').textContent = '';
-  }
-
   function gradeChallenge() {
-    // TODO(sll): This needs to be more robust -- e.g.,
-    // order should not matter.
-    var answerIsCorrect = true;
-
-    // TODO(sll): Convert this to match the format of the other bass line.
-    var expectedBassLine = CHALLENGES[currentChallengeIndex].expectedBassLine;
-    var currentBassLine = musicPlayer.getBassLine();
-
-    if (currentBassLine.length !== expectedBassLine.length) {
-      answerIsCorrect = false;
-    } else {
-      for (var i = 0; i < currentBassLine.length; i++) {
-        // TODO(sll): This needs to check each note, not just the first one. It
-        // also needs to check the delay.
-        if (currentBassLine[i].midiPitches[0] != expectedBassLine[i][0][0] ||
-            currentBassLine[i].durationInBeats != expectedBassLine[i][1]) {
-          answerIsCorrect = false;
-          break;
-        }
-      }
-    }
+    var expectedBassLine = new MusicLine();
+    expectedBassLine.setFromChordsAndDurations(
+      CHALLENGES[currentChallengeIndex].expectedBassLine);
 
     document.getElementById('grade').textContent =
-        answerIsCorrect ? 'Correct!' : 'Incorrect.';
+        musicPlayer.doesBassLineEqual(expectedBassLine) ?
+        'Correct!' : 'Incorrect.';
+  }
+
+  function resetGradeAndPlayer() {
+    document.getElementById('grade').textContent = '';
+    musicPlayer.reset();
   }
 
   function playAndGrade() {
-    clearGrade();
-    musicPlayer.reset();
+    resetGradeAndPlayer();
 
     runCodeToPopulateBassLine();
-    musicPlayer.playBassLine();
-
-    activeTimeouts.push(setTimeout(function() {
-      gradeChallenge();
-    }, musicPlayer.getBassLineDurationInMsecs()));
+    musicPlayer.playBassLine(gradeChallenge);
   }
 
   function playWithMelodyAndGrade() {
-    clearGrade();
-    musicPlayer.reset();
+    resetGradeAndPlayer();
 
-    // Play a backing melody, too.
+    // TODO(sll): Allow the user to pick the melody.
     musicPlayer.setMelody(MELODIES[0]);
     runCodeToPopulateBassLine();
-    musicPlayer.playAllLines();
-
-    activeTimeouts.push(setTimeout(function() {
-      gradeChallenge();
-    }, musicPlayer.getBassLineDurationInMsecs()));
+    musicPlayer.playAllLines(gradeChallenge);
   }
 
   function runCodeToPopulateBassLine() {
