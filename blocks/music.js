@@ -47,9 +47,17 @@ Blockly.Blocks['music_play_note'] = {
       "message0": "play note %1",
       "args0": [
         {
-          "type": "field_input",
+          "type": "field_dropdown",
           "name": "PITCH",
-          "text": "A"
+          "options": [
+            ["C", "48"],
+            ["D", "50"],
+            ["E", "52"],
+            ["F", "53"],
+            ["G", "55"],
+            ["A", "57"],
+            ["B", "59"]
+          ]
         }
       ],
       "previousStatement": null,
@@ -71,14 +79,28 @@ Blockly.Blocks['music_play_note_with_duration'] = {
       "message0": "play note %1 for %2 beat(s)",
       "args0": [
         {
-          "type": "field_input",
+          "type": "field_dropdown",
           "name": "PITCH",
-          "text": 'A'
+          "options": [
+            ["C", "48"],
+            ["D", "50"],
+            ["E", "52"],
+            ["F", "53"],
+            ["G", "55"],
+            ["A", "57"],
+            ["B", "59"]
+          ]
         },
         {
-          "type": "field_input",
+          "type": "field_dropdown",
           "name": "DURATION",
-          "text": "1"
+          "options": [
+            ["1", "1"],
+            ["2", "2"],
+            ["4", "4"],
+            ["1/2", "0.5"],
+            ["1/4", "0.25"]
+          ]
         }
       ],
       "previousStatement": null,

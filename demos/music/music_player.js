@@ -1,0 +1,126 @@
+/**
+ * Blockly Demos: Accessible Blockly
+ *
+ * Copyright 2016 Google Inc.
+ * https://developers.google.com/blockly/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * @fileoverview Utility functions for a music game for screen-reader users.
+ * @author sll@google.com (Sean Lip)
+ */
+
+var CONSTANTS = {
+  // Change this value to change the tempo.
+  MILLISECS_PER_BEAT: 2000.0,
+  LINE_BASS: 'bass',
+  LINE_MELODY: 'melody'
+};
+
+var MusicPlayer = function() {
+  // Initialize the MIDI player.
+  MIDI.loadPlugin({
+    soundfontUrl: '../../../MIDI.js/examples/soundfont/',
+    instrument: 'acoustic_grand_piano',
+    callback: function() {}
+  });
+
+  this.reset();
+};
+
+MusicPlayer.prototype.reset = function() {
+  this.lines_ = {};
+  this.lines_[CONSTANTS.LINE_BASS] = {
+    chords: [],
+    currentTimeInBeats: 0.0
+  };
+  this.lines_[CONSTANTS.LINE_MELODY] = {
+    chords: [],
+    currentTimeInBeats: 0.0
+  };
+
+  if (this.activeTimeouts && this.activeTimeouts.length > 0) {
+    this.activeTimeouts_.forEach(function(timeout) {
+      clearTimeout(timeout);
+    });
+  }
+  this.activeTimeouts_ = [];
+};
+
+MusicPlayer.prototype.getBassLineDurationInMsecs = function() {
+  return (
+      this.lines_[CONSTANTS.LINE_BASS].currentTimeInBeats *
+      CONSTANTS.MILLISECS_PER_BEAT);
+};
+
+MusicPlayer.prototype.getBassLine = function() {
+  // TODO(sll): Make a copy instead.
+  return this.lines_[CONSTANTS.LINE_BASS].chords;
+};
+
+MusicPlayer.prototype.addChord_ = function(
+    lineName, midiPitches, durationInBeats) {
+  if (!this.lines_.hasOwnProperty(lineName)) {
+    throw Error('Invalid line name: ' + lineName);
+  }
+
+  this.lines_[lineName].chords.push({
+    midiPitches: midiPitches,
+    durationInBeats: durationInBeats,
+    delayInBeats: this.lines_[lineName].currentTimeInBeats
+  });
+  this.lines_[lineName].currentTimeInBeats += durationInBeats;
+};
+
+MusicPlayer.prototype.addBassChord = function(
+    midiPitches, durationInBeats) {
+  this.addChord_(CONSTANTS.LINE_BASS, midiPitches, durationInBeats);
+};
+
+MusicPlayer.prototype.playNote = function(midiPitches, durationInBeats) {
+  var _MIDI_CHANNEL = 0;
+  var _MIDI_VELOCITY = 127;
+
+  MIDI.chordOn(_MIDI_CHANNEL, midiPitches, _MIDI_VELOCITY, 0);
+  MIDI.chordOff(_MIDI_CHANNEL, midiPitches, durationInBeats);
+};
+
+MusicPlayer.prototype.playLines_ = function(linesToPlay) {
+  var that = this;
+  linesToPlay.forEach(function(lineName) {
+    var line = that.lines_[lineName];
+    line.chords.forEach(function(chord) {
+      that.activeTimeouts_.push(setTimeout(function() {
+        that.playNote(chord.midiPitches, chord.durationInBeats);
+      }, chord.delayInBeats * CONSTANTS.MILLISECS_PER_BEAT));
+    });
+  });
+};
+
+MusicPlayer.prototype.playBassLine = function() {
+  this.playLines_([CONSTANTS.LINE_BASS]);
+};
+
+MusicPlayer.prototype.playAllLines = function() {
+  this.playLines_([CONSTANTS.LINE_BASS, CONSTANTS.LINE_MELODY]);
+};
+
+MusicPlayer.prototype.setMelody = function(melody) {
+  var that = this;
+  melody.forEach(function(noteAndLength) {
+    that.addChord_(
+      CONSTANTS.LINE_MELODY, [noteAndLength[0]], noteAndLength[1]);
+  });
+};

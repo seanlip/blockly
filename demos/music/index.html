@@ -26,6 +26,7 @@
 <!-- Libraries for MIDI playback. -->
 <script src="../../../MIDI.js/build/MIDI.js"></script>
 <script src="../../../MIDI.js/inc/shim/Base64binary.js"></script>
+<script src="./music_player.js"></script>
 
 <script>
   'use strict';
@@ -33,6 +34,7 @@
   // Depending on the URL argument, render as LTR or RTL.
   var rtl = (document.location.search == '?rtl');
   var workspace = null;
+  var musicPlayer = null;
   var activeTimeouts = [];
 
   function start() {
@@ -71,11 +73,7 @@
     var defaultBlocks = document.getElementById('blocklyDefault');
     Blockly.Xml.domToWorkspace(workspace, defaultBlocks);
 
-    MIDI.loadPlugin({
-      soundfontUrl: '../../../MIDI.js/examples/soundfont/',
-      instrument: 'acoustic_grand_piano',
-      callback: function() {}
-    });
+    musicPlayer = new MusicPlayer();
 
     // Load the first challenge after the page has loaded.
     setTimeout(function() {
@@ -89,102 +87,103 @@
   }
 
   var MELODIES = [[
+    // TODO(sll): Figure out how to represent rests.
     ['', 0.125, 0],
-    ['E', 0.125, 0.125],
-    ['G', 0.125, 0.25],
-    ['E', 0.125, 0.375],
-    ['G', 0.125, 0.5],
-    ['C', 0.5, 0.625],
-    ['E', 0.125, 1.125],
-    ['G', 0.125, 1.25],
-    ['E', 0.125, 1.375],
-    ['G', 0.625, 1.5],
-    ['E', 0.125, 2.125],
-    ['G', 0.125, 2.25],
-    ['E', 0.125, 2.375],
-    ['G', 0.125, 2.5],
-    ['C', 0.5, 2.625],
-    ['E', 0.125, 3.125],
-    ['G', 0.125, 3.25],
-    ['E', 0.125, 3.375],
-    ['G', 0.5, 3.5]
+    [64, 0.125, 0.125],
+    [67, 0.125, 0.25],
+    [64, 0.125, 0.375],
+    [67, 0.125, 0.5],
+    [60, 0.5, 0.625],
+    [64, 0.125, 1.125],
+    [67, 0.125, 1.25],
+    [64, 0.125, 1.375],
+    [67, 0.625, 1.5],
+    [64, 0.125, 2.125],
+    [67, 0.125, 2.25],
+    [64, 0.125, 2.375],
+    [67, 0.125, 2.5],
+    [60, 0.5, 2.625],
+    [64, 0.125, 3.125],
+    [67, 0.125, 3.25],
+    [64, 0.125, 3.375],
+    [67, 0.5, 3.5]
   ], [
-    ['G', 0.75, 0],
-    ['E', 0.25, 0.75],
-    ['D', 0.5, 1.0],
-    ['G', 0.25, 1.5],
-    ['E', 0.75, 1.75],
-    ['C', 0.25, 2.5],
-    ['A', 1.25, 2.75]
+    [67, 0.75, 0],
+    [64, 0.25, 0.75],
+    [62, 0.5, 1.0],
+    [67, 0.25, 1.5],
+    [64, 0.75, 1.75],
+    [60, 0.25, 2.5],
+    [57, 1.25, 2.75]
   ]];
 
   var CHALLENGES = [{
     htmlInstructions: 'Play the sequence C-G-A-F in order.',
     expectedBuffer: [{
-      midiValues: [60],
+      midiPitches: [48],
       durationInBeats: 1,
       delayInBeats: 0
     }, {
-      midiValues: [67],
+      midiPitches: [55],
       durationInBeats: 1,
       delayInBeats: 1
     }, {
-      midiValues: [69],
+      midiPitches: [57],
       durationInBeats: 1,
       delayInBeats: 2
     }, {
-      midiValues: [65],
+      midiPitches: [53],
       durationInBeats: 1,
       delayInBeats: 3
     }]
   }, {
     htmlInstructions: 'Play four loops of the sequence C-E-G.',
     expectedBuffer: [{
-      midiValues: [60],
+      midiPitches: [48],
       durationInBeats: 1,
       delayInBeats: 0
     }, {
-      midiValues: [64],
+      midiPitches: [52],
       durationInBeats: 1,
       delayInBeats: 1
     }, {
-      midiValues: [67],
+      midiPitches: [55],
       durationInBeats: 1,
       delayInBeats: 2
     }, {
-      midiValues: [60],
+      midiPitches: [48],
       durationInBeats: 1,
       delayInBeats: 3
     }, {
-      midiValues: [64],
+      midiPitches: [52],
       durationInBeats: 1,
       delayInBeats: 4
     }, {
-      midiValues: [67],
+      midiPitches: [55],
       durationInBeats: 1,
       delayInBeats: 5
     }, {
-      midiValues: [60],
+      midiPitches: [48],
       durationInBeats: 1,
       delayInBeats: 6
     }, {
-      midiValues: [64],
+      midiPitches: [52],
       durationInBeats: 1,
       delayInBeats: 7
     }, {
-      midiValues: [67],
+      midiPitches: [55],
       durationInBeats: 1,
       delayInBeats: 8
     }, {
-      midiValues: [60],
+      midiPitches: [48],
       durationInBeats: 1,
       delayInBeats: 9
     }, {
-      midiValues: [64],
+      midiPitches: [52],
       durationInBeats: 1,
       delayInBeats: 10
     }, {
-      midiValues: [67],
+      midiPitches: [55],
       durationInBeats: 1,
       delayInBeats: 11
     }]
@@ -207,14 +206,16 @@
     // order should not matter.
     var correct = true;
     var expectedBuffer = CHALLENGES[currentChallengeIndex].expectedBuffer;
-    if (notesBuffer.length !== expectedBuffer.length) {
+    var currentBuffer = musicPlayer.getBassLine();
+
+    if (currentBuffer.length !== expectedBuffer.length) {
       correct = false;
     } else {
-      for (var i = 0; i < notesBuffer.length; i++) {
+      for (var i = 0; i < currentBuffer.length; i++) {
         // TODO(sll): This needs to check each note, not just the first one.
-        if (notesBuffer[i].midiValues[0] != expectedBuffer[i].midiValues[0] ||
-            notesBuffer[i].durationInBeats != expectedBuffer[i].durationInBeats ||
-            notesBuffer[i].delayInBeats != expectedBuffer[i].delayInBeats) {
+        if (currentBuffer[i].midiPitches[0] != expectedBuffer[i].midiPitches[0] ||
+            currentBuffer[i].durationInBeats != expectedBuffer[i].durationInBeats ||
+            currentBuffer[i].delayInBeats != expectedBuffer[i].delayInBeats) {
           correct = false;
           break;
         }
@@ -225,85 +226,44 @@
         correct ? 'Correct!' : 'Incorrect.';
   }
 
-  var _MIDI_CHANNEL = 0;
-  var _MIDI_VELOCITY = 127;
-  var _MILLISECS_PER_BEAT = 2000.0;
-
-  var notesBuffer = [];
-  var currentTimeInSecs = 0;
-
-  function getMidiValueFromPitch(pitch) {
-    var PITCHES_TO_MIDI_VALUES = {
-      B: 71,
-      A: 69,
-      G: 67,
-      F: 65,
-      E: 64,
-      D: 62,
-      C: 60
-    };
-
-    if (PITCHES_TO_MIDI_VALUES.hasOwnProperty(pitch)) {
-      return PITCHES_TO_MIDI_VALUES[pitch];
-    } else {
-      // TODO(sll): change this.
-      return 5;
-    }
+  // The code generated by the blocks calls this function.
+  function addBassChord(pitches, durationInBeats) {
+    musicPlayer.addBassChord(pitches, durationInBeats);
   }
 
-  function addNotesToBuffer(pitches, durationInBeats) {
-    var midiValues = [];
-    pitches.forEach(function(pitch) {
-      midiValues.push(getMidiValueFromPitch(pitch));
-    });
-
-    notesBuffer.push({
-      midiValues: midiValues,
-      durationInBeats: durationInBeats,
-      delayInBeats: currentTimeInSecs
-    });
-    currentTimeInSecs += durationInBeats;
-  }
-
-  function playBuffer() {
+  function playAndGrade() {
     clearGrade();
-
-    notesBuffer.forEach(function(note) {
-      activeTimeouts.push(
-        setTimeout(function() {
-          playNote([note.midiValues[0] - 12], note.durationInBeats);
-        }, note.delayInBeats * _MILLISECS_PER_BEAT)
-      );
+    musicPlayer.reset();
+    activeTimeouts.forEach(function(timeout) {
+      clearTimeout(timeout);
     });
 
-    activeTimeouts.push(
-      setTimeout(function() {
-        gradeChallenge();
-      }, currentTimeInSecs * _MILLISECS_PER_BEAT)
-    );
+    runCodeToPopulateBassLine();
+    musicPlayer.playBassLine();
+
+    activeTimeouts.push(setTimeout(function() {
+      gradeChallenge();
+    }, musicPlayer.getBassLineDurationInMsecs()));
   }
 
-  function playBufferWithMelody() {
+  function playWithMelodyAndGrade() {
+    clearGrade();
+    musicPlayer.reset();
+    activeTimeouts.forEach(function(timeout) {
+      clearTimeout(timeout);
+    });
+
     // Play a backing melody, too.
-    MELODIES[1].forEach(function(noteAndLength) {
-      activeTimeouts.push(
-        setTimeout(function() {
-          playNote([getMidiValueFromPitch(noteAndLength[0])], noteAndLength[1]);
-        }, noteAndLength[2] * _MILLISECS_PER_BEAT)
-      );
-    });
+    musicPlayer.setMelody(MELODIES[1]);
+    runCodeToPopulateBassLine();
+    musicPlayer.playAllLines();
 
-    playBuffer();
+    activeTimeouts.push(setTimeout(function() {
+      gradeChallenge();
+    }, musicPlayer.getBassLineDurationInMsecs()));
   }
 
-  function playNote(midiValues, durationInBeats) {
-    MIDI.chordOn(
-      _MIDI_CHANNEL, midiValues, _MIDI_VELOCITY, 0);
-    MIDI.chordOff(
-      _MIDI_CHANNEL, midiValues, durationInBeats);
-  }
-
-  function runCode() {
+  function runCodeToPopulateBassLine() {
     // Generate JavaScript code and run it.
     window.LoopTrap = 1000;
     Blockly.JavaScript.INFINITE_LOOP_TRAP =
@@ -312,12 +272,6 @@
     var code = Blockly.JavaScript.workspaceToCode(workspace);
     Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
 
-    activeTimeouts.forEach(function(timeout) {
-      clearTimeout(timeout);
-    });
-
-    notesBuffer = [];
-    currentTimeInSecs = 0;
     try {
       eval(code);
     } catch (e) {
@@ -609,8 +563,8 @@ h1 {
   </p>
 
   <p>
-    <input type="button" value="Run" onclick="runCode(); playBuffer();">
-    <input type="button" value="Run with melody" onclick="runCode(); playBufferWithMelody();">
+    <input type="button" value="Run" onclick="playAndGrade();">
+    <input type="button" value="Run with melody" onclick="playWithMelodyAndGrade();">
     <span id="grade"></span>
   </p>
 
