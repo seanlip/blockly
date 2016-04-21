@@ -375,7 +375,23 @@ h1 {
     <sep></sep>
 
     <category name="Email" colour="55">
-      <block type="apps_send_email"></block>
+      <block type="apps_send_email">
+        <value name="RECIPIENT">
+          <shadow type="text">
+            <field name="TEXT">recipient@mail.com</field>
+          </shadow>
+        </value>
+        <value name="SUBJECT">
+          <shadow type="text">
+            <field name="TEXT">Hello!</field>
+          </shadow>
+        </value>
+        <value name="MESSAGE">
+          <shadow type="text">
+            <field name="TEXT">This is the email text.</field>
+          </shadow>
+        </value>
+      </block>
     </category>
 
     <category name="Spreadsheet" colour="20">
