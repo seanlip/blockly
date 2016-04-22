@@ -27,7 +27,8 @@ var CONSTANTS = {
   // Change this value to change the tempo.
   MILLISECS_PER_BEAT: 2000.0,
   LINE_BASS: 'bass',
-  LINE_MELODY: 'melody'
+  LINE_MELODY: 'melody',
+  SKEW_LIMIT_MSEC: 50.0
 };
 
 
@@ -136,16 +137,28 @@ MusicPlayer.prototype.reset = function() {
   this.activeTimeouts_ = [];
 };
 
-MusicPlayer.prototype.playNote_ = function(midiPitches, durationInBeats) {
+MusicPlayer.prototype.playNote_ = function(
+    midiPitches, durationInBeats, expectedEpochTime) {
+  // In Chrome, the timeouts start getting confused when the tab is
+  // backgrounded (see e.g. http://stackoverflow.com/q/6032429), so we
+  // halt the playthrough and remove all remaining notes from the play buffer.
+  // Note that this is not an issue in Firefox.
+  var currentEpochTime = (new Date).getTime();
+  var timeDifference = Math.abs(expectedEpochTime - currentEpochTime);
+  if (timeDifference > CONSTANTS.SKEW_LIMIT_MSEC) {
+    this.reset();
+    return;
+  }
+
   var MIDI_CHANNEL = 0;
   var MIDI_VELOCITY = 127;
-
   MIDI.chordOn(MIDI_CHANNEL, midiPitches, MIDI_VELOCITY, 0);
   MIDI.chordOff(MIDI_CHANNEL, midiPitches, durationInBeats);
 };
 
 MusicPlayer.prototype.playLines_ = function(
     linesToPlay, onFinishBassLineCallback) {
+  var startTime = (new Date).getTime();
   var that = this;
   linesToPlay.forEach(function(lineName) {
     that.lines_[lineName].getChords().forEach(function(chord) {
@@ -157,9 +170,14 @@ MusicPlayer.prototype.playLines_ = function(
         }
       });
 
+      var expectedEpochTime =
+          startTime +
+          chord.delayInBeats * CONSTANTS.MILLISECS_PER_BEAT;
+      var elapsedTime = (new Date).getTime() - startTime;
       that.activeTimeouts_.push(setTimeout(function() {
-        that.playNote_(uniquePitches, chord.durationInBeats);
-      }, chord.delayInBeats * CONSTANTS.MILLISECS_PER_BEAT));
+        that.playNote_(
+            uniquePitches, chord.durationInBeats, expectedEpochTime);
+      }, chord.delayInBeats * CONSTANTS.MILLISECS_PER_BEAT - elapsedTime));
     });
   });
 
