@@ -30,7 +30,7 @@ goog.require('Blockly.JavaScript');
 
 
 Blockly.JavaScript['music_play_note'] = function(block) {
-  // Play a single note.
+  // Play a single note for a duration of 1 beat.
   var code =
       'addBassChord([' + block.getFieldValue('PITCH') + '], 1);\n';
   return code;
@@ -42,5 +42,18 @@ Blockly.JavaScript['music_play_note_with_duration'] = function(block) {
   var code =
       'addBassChord([' + block.getFieldValue('PITCH') + '], ' +
       block.getFieldValue('DURATION') + ');\n';
+  return code;
+};
+
+Blockly.JavaScript['music_play_chord'] = function(block) {
+  // Play a chord for a duration of 1 beat.
+  var pitches = [];
+  var i = 0;
+  while (block.getInput('PITCH' + i)) {
+    pitches.push(block.getFieldValue('PITCH' + i));
+    i++;
+  }
+
+  var code = 'addBassChord([' + pitches.join(', ') + '], 1);\n';
   return code;
 };

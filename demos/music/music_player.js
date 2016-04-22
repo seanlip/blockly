@@ -149,8 +149,16 @@ MusicPlayer.prototype.playLines_ = function(
   var that = this;
   linesToPlay.forEach(function(lineName) {
     that.lines_[lineName].getChords().forEach(function(chord) {
+      // Play each pitch in a chord at most once.
+      var uniquePitches = [];
+      chord.midiPitches.forEach(function(pitch) {
+        if (uniquePitches.indexOf(pitch) == -1) {
+          uniquePitches.push(pitch);
+        }
+      });
+
       that.activeTimeouts_.push(setTimeout(function() {
-        that.playNote_(chord.midiPitches, chord.durationInBeats);
+        that.playNote_(uniquePitches, chord.durationInBeats);
       }, chord.delayInBeats * CONSTANTS.MILLISECS_PER_BEAT));
     });
   });
