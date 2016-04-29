@@ -31,7 +31,7 @@ goog.require('Blockly.Blocks');
 
 var MUSIC_DUMMY_TOOLTIP = 'Dummy tooltip';
 var MUSIC_DUMMY_HELPURL = 'Dummy help URL';
-var MSG_CREATE_CHORD_WITH = 'create chord with';
+var MSG_CREATE_CHORD_WITH = 'play chord with';
 var MSG_MUSIC_CHORD_TITLE = 'chord';
 var MSG_MUSIC_NOTE = 'note';
 
@@ -101,9 +101,11 @@ Blockly.Blocks['music_play_note_with_duration'] = {
           "options": [
             ["1", "1"],
             ["2", "2"],
+            ["3", "3"],
             ["4", "4"],
             ["1/2", "0.5"],
-            ["1/4", "0.25"]
+            ["1/4", "0.25"],
+            ["3/4", "0.75"]
           ]
         }
       ],
