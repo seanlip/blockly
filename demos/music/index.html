@@ -5,28 +5,25 @@
 <title>Blockly Music demo</title>
 <script src="../../blockly_uncompressed.js"></script>
 <script src="../../generators/javascript.js"></script>
-<script src="../../generators/javascript/logic.js"></script>
-<script src="../../generators/javascript/loops.js"></script>
-<script src="../../generators/javascript/math.js"></script>
-<script src="../../generators/javascript/text.js"></script>
-<script src="../../generators/javascript/lists.js"></script>
 <script src="../../generators/javascript/music.js"></script>
-<script src="../../generators/javascript/variables.js"></script>
+<script src="../../generators/javascript/loops.js"></script>
 <script src="../../generators/javascript/procedures.js"></script>
+<script src="../../generators/javascript/logic.js"></script>
+<script src="../../generators/javascript/math.js"></script>
 <script src="../../msg/messages.js"></script>
-<script src="../../blocks/logic.js"></script>
-<script src="../../blocks/loops.js"></script>
-<script src="../../blocks/math.js"></script>
-<script src="../../blocks/text.js"></script>
-<script src="../../blocks/lists.js"></script>
 <script src="../../blocks/music.js"></script>
-<script src="../../blocks/variables.js"></script>
+<script src="../../blocks/loops.js"></script>
 <script src="../../blocks/procedures.js"></script>
+<script src="../../blocks/logic.js"></script>
+<script src="../../blocks/math.js"></script>
 
 <!-- Libraries for MIDI playback. -->
 <script src="../../../MIDI.js/build/MIDI.js"></script>
 <script src="../../../MIDI.js/inc/shim/Base64binary.js"></script>
+
+<!-- Libraries for music demo. -->
 <script src="./music_player.js"></script>
+<script src="./levels.js"></script>
 
 <script>
   'use strict';
@@ -35,7 +32,6 @@
   var rtl = (document.location.search == '?rtl');
   var workspace = null;
   var musicPlayer = null;
-  var activeTimeouts = [];
 
   function start() {
     var toolbox = document.getElementById('toolbox');
@@ -68,9 +64,6 @@
     // Decrease the hover time for tooltips.
     Blockly.Tooltip.HOVER_MS = 150;
 
-    // Add a 'start hat' for event blocks.
-    Blockly.BlockSvg.START_HAT = true;
-
     var defaultBlocks = document.getElementById('blocklyDefault');
     Blockly.Xml.domToWorkspace(workspace, defaultBlocks);
 
@@ -78,7 +71,7 @@
 
     // Load the first challenge after the page has loaded.
     setTimeout(function() {
-      setChallenge('tutorial', 1);
+      setChallenge(LEVELS[0].name, 1);
     });
   }
 
@@ -92,286 +85,9 @@
     output.value = Blockly[lang].workspaceToCode(workspace);
   }
 
-  var MELODIES = [[
-    [null, 0.125],
-    [[64], 0.125],
-    [[67], 0.125],
-    [[64], 0.125],
-    [[67], 0.125],
-    [[60], 0.5],
-    [[64], 0.125],
-    [[67], 0.125],
-    [[64], 0.125],
-    [[67], 0.625],
-    [[64], 0.125],
-    [[67], 0.125],
-    [[64], 0.125],
-    [[67], 0.125],
-    [[60], 0.5],
-    [[64], 0.125],
-    [[67], 0.125],
-    [[64], 0.125],
-    [[67], 0.5]
-  ], [
-    [[67], 0.75],
-    [[64], 0.25],
-    [[62], 0.5],
-    [[67], 0.25],
-    [[64], 0.75],
-    [[60], 0.25],
-    [[57], 1.25]
-  ]];
-
-  var CHALLENGES_TUTORIAL = [{
-    htmlInstructions: 'Play a single note, C3.',
-    expectedLine: [
-      [[36], 1]
-    ],
-    beatsPerMinute: 80,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Modify the note to become E3 instead.',
-    expectedLine: [
-      [[40], 1]
-    ],
-    beatsPerMinute: 80,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Play the sequence G3-A3-F3 in order.',
-    expectedLine: [
-      [[43], 1],
-      [[45], 1],
-      [[41], 1]
-    ],
-    beatsPerMinute: 80,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Play the chord C3-E3-G3.',
-    expectedLine: [
-      [[36, 40, 43], 1]
-    ],
-    beatsPerMinute: 80,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Play the chord C3-F3-A3, then the chord C3-E3-G3.',
-    expectedLine: [
-      [[36, 41, 45], 1],
-      [[36, 40, 43], 1]
-    ],
-    beatsPerMinute: 80,
-    accompaniment: null
-  }];
-
-  var CHALLENGES_BEGINNER = [{
-    htmlInstructions: 'Play Mary Had a Little Lamb: E4-D4-C4-D4-E4-E4-E4. Try to use only six blocks.',
-    expectedLine: [
-      [[52], 1],
-      [[50], 1],
-      [[48], 1],
-      [[50], 1],
-      [[52], 1],
-      [[52], 1],
-      [[52], 1]
-    ],
-    beatsPerMinute: 100,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Play Can You Feel the Love Tonight: G4--E4D4-G4E4--C4A3----',
-    expectedLine: [
-      [[55], 3],
-      [[52], 1],
-      [[50], 2],
-      [[55], 1],
-      [[52], 3],
-      [[48], 1],
-      [[45], 4]
-    ],
-    beatsPerMinute: 120,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Play The Entertainer: D4E4C4A3-B3G3',
-    expectedLine: [
-      [[50], 0.5],
-      [[52], 0.5],
-      [[48], 0.5],
-      [[45], 1],
-      [[47], 0.5],
-      [[43], 0.5]
-    ],
-    beatsPerMinute: 80,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Play Happy Birthday: G3..G3 A3 G3 C4 B3 - G3..G3 A3 G3 D4 C4 -',
-    expectedLine: [
-      [[43], 0.75],
-      [[43], 0.25],
-      [[45], 1],
-      [[43], 1],
-      [[48], 1],
-      [[47], 2],
-      [[43], 0.75],
-      [[43], 0.25],
-      [[45], 1],
-      [[43], 1],
-      [[50], 1],
-      [[48], 2]
-    ],
-    beatsPerMinute: 100,
-    accompaniment: null
-  }, {
-    htmlInstructions: 'Mary Had a Little Lamb: Play the chord C3-E3-G3 seven times. Use only two blocks!',
-    expectedLine: [
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1]
-    ],
-    beatsPerMinute: 100,
-    accompaniment: [
-      [[52], 1],
-      [[50], 1],
-      [[48], 1],
-      [[50], 1],
-      [[52], 1],
-      [[52], 1],
-      [[52], 1]
-    ]
-  }, {
-    htmlInstructions: 'Lion King: Play C4 then G3 then A3 then F3. Make each note 4 beats long.',
-    expectedLine: [
-      [[48], 4],
-      [[43], 4],
-      [[45], 4],
-      [[41], 4]
-    ],
-    beatsPerMinute: 120,
-    accompaniment: [
-      [[67], 3],
-      [[64], 1],
-      [[62], 2],
-      [[67], 1],
-      [[64], 3],
-      [[60], 1],
-      [[57], 4]
-    ]
-  }, {
-    htmlInstructions: 'Lion King (reprise): Play C4 for 2 beats then G4 for 2 beats; repeat for the other three.',
-    expectedLine: [
-      [[48], 2],
-      [[55], 2],
-      [[43], 2],
-      [[50], 2],
-      [[45], 2],
-      [[52], 2],
-      [[41], 2],
-      [[48], 2],
-    ],
-    beatsPerMinute: 120,
-    accompaniment: [
-      [[67], 3],
-      [[64], 1],
-      [[62], 2],
-      [[67], 1],
-      [[64], 3],
-      [[60], 1],
-      [[57], 4]
-    ]
-  }, {
-    htmlInstructions: 'Edelweiss: Play C4 - E4/G4 - E4/G4 (1 beat each), ditto for the other three.',
-    expectedLine: [
-      [[48], 1],
-      [[52, 55], 1],
-      [[52, 55], 1],
-      [[43], 1],
-      [[47, 50], 1],
-      [[47, 50], 1],
-      [[45], 1],
-      [[49, 52], 1],
-      [[49, 52], 1],
-      [[41], 1],
-      [[45, 48], 1],
-      [[45, 48], 1]
-    ],
-    beatsPerMinute: 120,
-    accompaniment: [
-      [[64], 2],
-      [[67], 1],
-      [[74], 3],
-      [[72], 2],
-      [[67], 1],
-      [[65], 3]
-    ]
-  }, {
-    htmlInstructions: 'Frozen: Play C4/E4-G4 four times quickly (half-beat each) then B3/D4-G4 then A3/C4-E4 then A3/C4-F4.',
-    expectedLine: [
-      [[60, 64], 0.5],
-      [[55], 0.5],
-      [[60, 64], 0.5],
-      [[55], 0.5],
-      [[60, 64], 0.5],
-      [[55], 0.5],
-      [[60, 64], 0.5],
-      [[55], 0.5],
-
-      [[59, 62], 0.5],
-      [[55], 0.5],
-      [[59, 62], 0.5],
-      [[55], 0.5],
-      [[59, 62], 0.5],
-      [[55], 0.5],
-      [[59, 62], 0.5],
-      [[55], 0.5],
-
-      [[57, 60], 0.5],
-      [[52], 0.5],
-      [[57, 60], 0.5],
-      [[52], 0.5],
-      [[57, 60], 0.5],
-      [[52], 0.5],
-      [[57, 60], 0.5],
-      [[52], 0.5],
-
-      [[57, 60], 0.5],
-      [[53], 0.5],
-      [[57, 60], 0.5],
-      [[53], 0.5],
-      [[57, 60], 0.5],
-      [[53], 0.5],
-      [[57, 60], 0.5],
-      [[53], 0.5]
-    ],
-    beatsPerMinute: 140,
-    accompaniment: [
-      [[72], 2.5],
-      [[67], 0.5],
-      [[76], 0.5],
-      [[74], 3.5],
-      [[72], 1],
-      [[69], 1],
-      [[69], 0.5],
-      [[69], 0.5],
-      [[69], 0.5],
-      [[71], 1],
-      [[72], 1],
-      [[74], 0.5],
-      [[72], 3]
-    ]
-  }, {
-    htmlInstructions: 'Play anything you like.',
-    expectedLine: null,
-    beatsPerMinute: 120,
-    accompaniment: null
-  }];
-
-  var CHALLENGES_ADVANCED = [];
-
   var CHALLENGE_SUITES = {
-    tutorial: CHALLENGES_TUTORIAL,
-    beginner: CHALLENGES_BEGINNER,
-    advanced: CHALLENGES_ADVANCED
+    tutorial: LEVELS[0].levelSet,
+    beginner: LEVELS[1].levelSet
   };
 
   var currentChallengeSuite = CHALLENGE_SUITES.tutorial;
@@ -463,26 +179,12 @@ h1 {
   height: 95%;
   width: 70%;
 }
-#collaborators {
-  float: right;
-  width: 30px;
-  margin-left: 10px;
-}
-#collaborators > img {
-  margin-right: 5px;
-  height: 30px;
-  padding-bottom: 5px;
-  width: 30px;
-  border-radius: 3px;
-}
 #importExport {
   font-family: monospace;
 }
 </style>
 </head>
 <body onload="start()">
-
-  <div id="collaborators"></div>
 
   <div id="blocklyDiv"></div>
 
@@ -493,43 +195,24 @@ h1 {
     <category name="Music" colour="20">
       <block type="music_play_note"></block>
       <block type="music_play_note_with_duration"></block>
-
       <block type="music_play_chord"></block>
     </category>
 
     <category name="Loops" colour="120">
-      <block type="controls_repeat_ext">
+      <block type="controls_repeat">
         <value name="TIMES">
           <shadow type="math_number">
             <field name="NUM">10</field>
           </shadow>
         </value>
       </block>
-      <block type="controls_whileUntil"></block>
-      <block type="controls_for">
-        <value name="FROM">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="TO">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-        <value name="BY">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-      </block>
       <block type="controls_forEach"></block>
-      <block type="controls_flow_statements"></block>
     </category>
 
     <sep></sep>
 
-    <category name="Functions" colour="290" custom="PROCEDURE"></category>
+    <category name="Functions" colour="290" custom="PROCEDURE">
+    </category>
 
     <category name="Logic" colour="210">
       <block type="controls_if"></block>
@@ -538,101 +221,6 @@ h1 {
       <block type="logic_negate"></block>
       <block type="logic_boolean"></block>
       <block type="logic_ternary"></block>
-    </category>
-
-    <category name="Math" colour="230">
-      <block type="math_number" gap="32"></block>
-      <block type="math_arithmetic">
-        <value name="A">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="B">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_single">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">9</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_trig">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">45</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_constant"></block>
-      <block type="math_number_property">
-        <value name="NUMBER_TO_CHECK">
-          <shadow type="math_number">
-            <field name="NUM">0</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_change">
-        <value name="DELTA">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_round">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">3.1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_on_list"></block>
-      <block type="math_modulo">
-        <value name="DIVIDEND">
-          <shadow type="math_number">
-            <field name="NUM">64</field>
-          </shadow>
-        </value>
-        <value name="DIVISOR">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_constrain">
-        <value name="VALUE">
-          <shadow type="math_number">
-            <field name="NUM">50</field>
-          </shadow>
-        </value>
-        <value name="LOW">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="HIGH">
-          <shadow type="math_number">
-            <field name="NUM">100</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_random_int">
-        <value name="FROM">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="TO">
-          <shadow type="math_number">
-            <field name="NUM">100</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_random_float"></block>
     </category>
   </xml>
 

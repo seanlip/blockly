@@ -20,6 +20,7 @@
 /**
  * @fileoverview Utility functions and classes for a music game for
  *               screen-reader users.
+ *
  * @author sll@google.com (Sean Lip)
  */
 
