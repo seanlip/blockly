@@ -73,7 +73,7 @@
   }],
 
   BEGINNER: [{
-    htmlInstructions: 'Play Mary Had a Little Lamb: E4-D4-C4-D4-E4-E4-E4. Try to use only six blocks.',
+    htmlInstructions: 'Play Mary Had a Little Lamb: E4-D4-C4-D4-E4-E4-E4.',
     expectedLine: [
       [[52], 1],
       [[50], 1],
@@ -83,35 +83,230 @@
       [[52], 1],
       [[52], 1]
     ],
-    beatsPerMinute: 100,
+    beatsPerMinute: 120,
     accompaniment: null
   }, {
-    htmlInstructions: 'Play Can You Feel the Love Tonight: G4--E4D4-G4E4--C4A3----',
+    htmlInstructions: 'Same thing, but now try to use only 6 blocks.',
     expectedLine: [
-      [[55], 3],
       [[52], 1],
-      [[50], 2],
-      [[55], 1],
-      [[52], 3],
+      [[50], 1],
       [[48], 1],
-      [[45], 4]
+      [[50], 1],
+      [[52], 1],
+      [[52], 1],
+      [[52], 1]
     ],
     beatsPerMinute: 120,
     accompaniment: null
   }, {
-    htmlInstructions: 'Play The Entertainer: D4E4C4A3-B3G3',
+    htmlInstructions: 'Add on the rest of the tune!',
     expectedLine: [
-      [[50], 0.5],
-      [[52], 0.5],
-      [[48], 0.5],
-      [[45], 1],
-      [[47], 0.5],
-      [[43], 0.5]
+      [[52], 1],
+      [[50], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[52], 1],
+      [[52], 2],
+      [[50], 1],
+      [[50], 1],
+      [[50], 2],
+      [[52], 1],
+      [[55], 1],
+      [[55], 2]
+    ],
+    beatsPerMinute: 120,
+    accompaniment: null
+  }, {
+    htmlInstructions: 'Play the first part of Frere Jacques. Use only 5 blocks.',
+    expectedLine: [
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1]
+    ],
+    beatsPerMinute: 120,
+    accompaniment: null
+  }, {
+    htmlInstructions: 'Add four more blocks for the next part.',
+    expectedLine: [
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+    ],
+    beatsPerMinute: 120,
+    accompaniment: null
+  }, {
+    htmlInstructions: 'Add the third part.',
+    expectedLine: [
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1]
     ],
     beatsPerMinute: 80,
     accompaniment: null
   }, {
-    htmlInstructions: 'Play Happy Birthday: G3..G3 A3 G3 C4 B3 - G3..G3 A3 G3 D4 C4 -',
+    htmlInstructions: 'Add the last part.',
+    expectedLine: [
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+
+      [[48], 1],
+      [[43], 1],
+      [[48], 2],
+      [[48], 1],
+      [[43], 1],
+      [[48], 2],
+    ],
+    beatsPerMinute: 80,
+    accompaniment: null
+  }, {
+    htmlInstructions: 'Now play the whole thing twice, but include a pick-up at the end of the first one. Can you use the if block to make it easier?',
+    expectedLine: [
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+
+      [[48], 1],
+      [[43], 1],
+      [[48], 2],
+      [[48], 1],
+      [[43], 1],
+      [[45], 1],
+      [[47], 1],
+
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+      [[48], 1],
+      [[50], 1],
+      [[52], 1],
+      [[48], 1],
+
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+      [[52], 1],
+      [[53], 1],
+      [[55], 2],
+
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+      [[55], 0.5],
+      [[57], 0.5],
+      [[55], 0.5],
+      [[53], 0.5],
+      [[52], 1],
+      [[48], 1],
+
+      [[48], 1],
+      [[43], 1],
+      [[48], 2],
+      [[48], 1],
+      [[43], 1],
+      [[48], 2]
+    ],
+    beatsPerMinute: 80,
+    accompaniment: null
+  }, {
+    htmlInstructions: 'Challenge -- can you play Happy Birthday? G3..G3 A3 G3 C4 B3 - G3..G3 A3 G3 D4 C4 -',
     expectedLine: [
       [[43], 0.75],
       [[43], 0.25],
@@ -129,148 +324,7 @@
     beatsPerMinute: 100,
     accompaniment: null
   }, {
-    htmlInstructions: 'Mary Had a Little Lamb: Play the chord C3-E3-G3 seven times. Use only two blocks!',
-    expectedLine: [
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1],
-      [[36, 41, 45], 1]
-    ],
-    beatsPerMinute: 100,
-    accompaniment: [
-      [[52], 1],
-      [[50], 1],
-      [[48], 1],
-      [[50], 1],
-      [[52], 1],
-      [[52], 1],
-      [[52], 1]
-    ]
-  }, {
-    htmlInstructions: 'Lion King: Play C4 then G3 then A3 then F3. Make each note 4 beats long.',
-    expectedLine: [
-      [[48], 4],
-      [[43], 4],
-      [[45], 4],
-      [[41], 4]
-    ],
-    beatsPerMinute: 120,
-    accompaniment: [
-      [[67], 3],
-      [[64], 1],
-      [[62], 2],
-      [[67], 1],
-      [[64], 3],
-      [[60], 1],
-      [[57], 4]
-    ]
-  }, {
-    htmlInstructions: 'Lion King (reprise): Play C4 for 2 beats then G4 for 2 beats; repeat for the other three.',
-    expectedLine: [
-      [[48], 2],
-      [[55], 2],
-      [[43], 2],
-      [[50], 2],
-      [[45], 2],
-      [[52], 2],
-      [[41], 2],
-      [[48], 2],
-    ],
-    beatsPerMinute: 120,
-    accompaniment: [
-      [[67], 3],
-      [[64], 1],
-      [[62], 2],
-      [[67], 1],
-      [[64], 3],
-      [[60], 1],
-      [[57], 4]
-    ]
-  }, {
-    htmlInstructions: 'Edelweiss: Play C4 - E4/G4 - E4/G4 (1 beat each), ditto for the other three.',
-    expectedLine: [
-      [[48], 1],
-      [[52, 55], 1],
-      [[52, 55], 1],
-      [[43], 1],
-      [[47, 50], 1],
-      [[47, 50], 1],
-      [[45], 1],
-      [[49, 52], 1],
-      [[49, 52], 1],
-      [[41], 1],
-      [[45, 48], 1],
-      [[45, 48], 1]
-    ],
-    beatsPerMinute: 120,
-    accompaniment: [
-      [[64], 2],
-      [[67], 1],
-      [[74], 3],
-      [[72], 2],
-      [[67], 1],
-      [[65], 3]
-    ]
-  }, {
-    htmlInstructions: 'Frozen: Play C4/E4-G4 four times quickly (half-beat each) then B3/D4-G4 then A3/C4-E4 then A3/C4-F4.',
-    expectedLine: [
-      [[60, 64], 0.5],
-      [[55], 0.5],
-      [[60, 64], 0.5],
-      [[55], 0.5],
-      [[60, 64], 0.5],
-      [[55], 0.5],
-      [[60, 64], 0.5],
-      [[55], 0.5],
-
-      [[59, 62], 0.5],
-      [[55], 0.5],
-      [[59, 62], 0.5],
-      [[55], 0.5],
-      [[59, 62], 0.5],
-      [[55], 0.5],
-      [[59, 62], 0.5],
-      [[55], 0.5],
-
-      [[57, 60], 0.5],
-      [[52], 0.5],
-      [[57, 60], 0.5],
-      [[52], 0.5],
-      [[57, 60], 0.5],
-      [[52], 0.5],
-      [[57, 60], 0.5],
-      [[52], 0.5],
-
-      [[57, 60], 0.5],
-      [[53], 0.5],
-      [[57, 60], 0.5],
-      [[53], 0.5],
-      [[57, 60], 0.5],
-      [[53], 0.5],
-      [[57, 60], 0.5],
-      [[53], 0.5]
-    ],
-    beatsPerMinute: 140,
-    accompaniment: [
-      [[72], 2.5],
-      [[67], 0.5],
-      [[76], 0.5],
-      [[74], 3.5],
-      [[72], 1],
-      [[69], 1],
-      [[69], 0.5],
-      [[69], 0.5],
-      [[69], 0.5],
-      [[71], 1],
-      [[72], 1],
-      [[74], 0.5],
-      [[72], 3]
-    ]
-  }, {
-    htmlInstructions: 'Play anything you like.',
+    htmlInstructions: 'Play anything you like. Experiment!',
     expectedLine: null,
     beatsPerMinute: 120,
     accompaniment: null
