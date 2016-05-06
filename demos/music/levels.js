@@ -37,6 +37,7 @@
     expectedLine: [
       [[36], 1]
     ],
+    blocks: ['music_play_note'].
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -44,6 +45,7 @@
     expectedLine: [
       [[40], 1]
     ],
+    blocks: ['music_play_note'].
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -53,21 +55,26 @@
       [[45], 1],
       [[41], 1]
     ],
+    blocks: ['music_play_note'].
     beatsPerMinute: 80,
     accompaniment: null
   }, {
-    htmlInstructions: 'Play the chord C3-E3-G3.',
+    htmlInstructions: 'Play the note D3 for two beats.',
     expectedLine: [
-      [[36, 40, 43], 1]
+      [[38], 2]
     ],
+    blocks: ['music_play_note_with_duration'].
     beatsPerMinute: 80,
     accompaniment: null
   }, {
-    htmlInstructions: 'Play the chord C3-F3-A3, then the chord C3-E3-G3.',
+    htmlInstructions: 'Play the sequence C4-G3-E3-C3. Hold the last note for two beats.',
     expectedLine: [
-      [[36, 41, 45], 1],
-      [[36, 40, 43], 1]
+      [[48], 1],
+      [[43], 1],
+      [[40], 1],
+      [[36], 2]
     ],
+    blocks: ['music_play_note', 'music_play_note_with_duration'].
     beatsPerMinute: 80,
     accompaniment: null
   }],
@@ -83,6 +90,7 @@
       [[52], 1],
       [[52], 1]
     ],
+    blocks: ['music_play_note'].
     beatsPerMinute: 120,
     accompaniment: null
   }, {
@@ -96,6 +104,7 @@
       [[52], 1],
       [[52], 1]
     ],
+    blocks: ['music_play_note', 'controls_repeat'],
     beatsPerMinute: 120,
     accompaniment: null
   }, {
@@ -115,6 +124,11 @@
       [[55], 1],
       [[55], 2]
     ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
+    ],
     beatsPerMinute: 120,
     accompaniment: null
   }, {
@@ -128,6 +142,11 @@
       [[50], 1],
       [[52], 1],
       [[48], 1]
+    ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
     ],
     beatsPerMinute: 120,
     accompaniment: null
@@ -149,6 +168,11 @@
       [[52], 1],
       [[53], 1],
       [[55], 2],
+    ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
     ],
     beatsPerMinute: 120,
     accompaniment: null
@@ -183,6 +207,11 @@
       [[53], 0.5],
       [[52], 1],
       [[48], 1]
+    ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
     ],
     beatsPerMinute: 80,
     accompaniment: null
@@ -224,6 +253,11 @@
       [[48], 1],
       [[43], 1],
       [[48], 2],
+    ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
     ],
     beatsPerMinute: 80,
     accompaniment: null
@@ -303,6 +337,11 @@
       [[43], 1],
       [[48], 2]
     ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
+    ],
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -321,11 +360,21 @@
       [[50], 1],
       [[48], 2]
     ],
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
+    ],
     beatsPerMinute: 100,
     accompaniment: null
   }, {
     htmlInstructions: 'Play anything you like. Experiment!',
     expectedLine: null,
+    blocks: [
+      'music_play_note',
+      'music_play_note_with_duration',
+      'controls_repeat'
+    ],
     beatsPerMinute: 120,
     accompaniment: null
   }]
