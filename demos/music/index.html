@@ -198,14 +198,19 @@
     <p>
       <div>
         {{currentLevel.htmlInstructions}}
+        <button ng-if="currentLevel.expectedLine"
+                ng-click="playExpectedLine()">
+          Play desired answer
+        </button>
       </div>
     </p>
 
     <p>
-      <input type="button" value="Run" ng-click="playAndGrade()">
-      <input type="button" value="Run with accompaniment"
-             ng-if="currentLevel.accompaniment"
-             ng-click="playWithAccompanimentAndGrade()">
+      <button ng-click="playAndGrade()">Run</button>
+      <button ng-if="currentLevel.accompaniment"
+              ng-click="playWithAccompanimentAndGrade()">
+        Run with accompaniment
+      </button>
       <span>{{grade}}</span>
     </p>
 

@@ -148,7 +148,7 @@
       'music_play_note_with_duration',
       'controls_repeat'
     ],
-    beatsPerMinute: 120,
+    beatsPerMinute: 150,
     accompaniment: null
   }, {
     htmlInstructions: 'Add four more blocks for the next part.',
@@ -174,7 +174,7 @@
       'music_play_note_with_duration',
       'controls_repeat'
     ],
-    beatsPerMinute: 120,
+    beatsPerMinute: 150,
     accompaniment: null
   }, {
     htmlInstructions: 'Add the third part.',
@@ -213,7 +213,7 @@
       'music_play_note_with_duration',
       'controls_repeat'
     ],
-    beatsPerMinute: 80,
+    beatsPerMinute: 150,
     accompaniment: null
   }, {
     htmlInstructions: 'Add the last part.',
@@ -259,7 +259,7 @@
       'music_play_note_with_duration',
       'controls_repeat'
     ],
-    beatsPerMinute: 80,
+    beatsPerMinute: 150,
     accompaniment: null
   }, {
     htmlInstructions: 'Now play the whole thing twice, but include a pick-up at the end of the first one. Can you use the if block to make it easier?',
@@ -342,7 +342,7 @@
       'music_play_note_with_duration',
       'controls_repeat'
     ],
-    beatsPerMinute: 80,
+    beatsPerMinute: 150,
     accompaniment: null
   }, {
     htmlInstructions: 'Challenge -- can you play Happy Birthday? G3..G3 A3 G3 C4 B3 - G3..G3 A3 G3 D4 C4 -',

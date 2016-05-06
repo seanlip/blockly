@@ -70,8 +70,7 @@ abMusicDemo.controller('Index', [
       $scope.$apply();
     };
 
-    var resetLevel = function() {
-      $scope.grade = '';
+    var resetPlayer = function() {
       musicPlayer.reset();
     };
 
@@ -92,16 +91,26 @@ abMusicDemo.controller('Index', [
     };
 
     $scope.playAndGrade = function() {
-      resetLevel();
+      $scope.grade = '';
+      resetPlayer();
+
       populatePlayerLine();
       musicPlayer.playPlayerLine($scope.currentLevel.beatsPerMinute, setGrade);
     };
 
     $scope.playWithAccompanimentAndGrade = function() {
-      resetLevel();
+      $scope.grade = '';
+      resetPlayer();
+
       musicPlayer.setAccompaniment($scope.currentLevel.accompaniment);
       populatePlayerLine();
       musicPlayer.playAllLines($scope.currentLevel.beatsPerMinute, setGrade);
+    };
+
+    $scope.playExpectedLine = function() {
+      resetPlayer();
+      musicPlayer.setAccompaniment($scope.currentLevel.expectedLine);
+      musicPlayer.playAllLines($scope.currentLevel.beatsPerMinute);
     };
   }
 ]);
