@@ -27,17 +27,17 @@
  * This file is organized as follows:
  * - First, there are a few stock level sets that can be used as levels. You
  *     can create your own level packs, too!
- * - The LEVELS constant at the bottom collects all the sets that are actually
- *     used in index.html.
+ * - The LEVEL_SETS constant at the bottom collects all the sets that are
+ *     actually used in index.html.
  */
 
- var LEVEL_SETS = {
+ var LEVELS = {
   TUTORIAL: [{
     htmlInstructions: 'Play a single note, C3.',
     expectedLine: [
       [[36], 1]
     ],
-    blocks: ['music_play_note'].
+    blocks: ['music_play_note'],
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -45,7 +45,7 @@
     expectedLine: [
       [[40], 1]
     ],
-    blocks: ['music_play_note'].
+    blocks: ['music_play_note'],
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -55,7 +55,7 @@
       [[45], 1],
       [[41], 1]
     ],
-    blocks: ['music_play_note'].
+    blocks: ['music_play_note'],
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -63,7 +63,7 @@
     expectedLine: [
       [[38], 2]
     ],
-    blocks: ['music_play_note_with_duration'].
+    blocks: ['music_play_note_with_duration'],
     beatsPerMinute: 80,
     accompaniment: null
   }, {
@@ -74,7 +74,7 @@
       [[40], 1],
       [[36], 2]
     ],
-    blocks: ['music_play_note', 'music_play_note_with_duration'].
+    blocks: ['music_play_note', 'music_play_note_with_duration'],
     beatsPerMinute: 80,
     accompaniment: null
   }],
@@ -90,7 +90,7 @@
       [[52], 1],
       [[52], 1]
     ],
-    blocks: ['music_play_note'].
+    blocks: ['music_play_note'],
     beatsPerMinute: 120,
     accompaniment: null
   }, {
@@ -366,7 +366,20 @@
       'controls_repeat'
     ],
     beatsPerMinute: 100,
-    accompaniment: null
+    accompaniment: [
+      [[], 1],
+      [[36], 1],
+      [[40, 43], 1],
+      [[40, 43], 1],
+      [[35], 1],
+      [[38, 43], 1],
+      [[38, 43], 1],
+      [[35], 1],
+      [[38, 43], 1],
+      [[38, 43], 1],
+      [[36], 1],
+      [[40, 43], 1]
+    ]
   }, {
     htmlInstructions: 'Play anything you like. Experiment!',
     expectedLine: null,
@@ -380,10 +393,10 @@
   }]
 };
 
-var LEVELS = [{
-  name: 'tutorial',
-  levelSet: LEVEL_SETS.TUTORIAL
+var LEVEL_SETS = [{
+  name: 'Tutorial',
+  levels: LEVELS.TUTORIAL
 }, {
-  name: 'beginner',
-  levelSet: LEVEL_SETS.BEGINNER
+  name: 'Beginner',
+  levels: LEVELS.BEGINNER
 }];
