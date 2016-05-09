@@ -57,6 +57,7 @@ abMusicDemo.controller('Index', [
     var setGrade = function() {
       if (!$scope.currentLevel.expectedLine) {
         $scope.grade = 'Nice tune!';
+        Blockly.getMainWorkspace().playAudio('applause');
       } else {
         var expectedLine = new MusicLine();
         expectedLine.setFromChordsAndDurations(
@@ -65,6 +66,9 @@ abMusicDemo.controller('Index', [
         $scope.grade = (
           musicPlayer.doesPlayerLineEqual(expectedLine) ?
           'Correct!' : 'Incorrect.');
+        if (musicPlayer.doesPlayerLineEqual(expectedLine)) {
+          Blockly.getMainWorkspace().playAudio('applause');
+        }
       }
 
       $scope.$apply();
@@ -95,7 +99,18 @@ abMusicDemo.controller('Index', [
       resetPlayer();
 
       populatePlayerLine();
-      musicPlayer.playPlayerLine($scope.currentLevel.beatsPerMinute, setGrade);
+
+      var millisecsPerBeat = 60000.0 / $scope.currentLevel.beatsPerMinute;
+      $timeout(function() {
+        Blockly.getMainWorkspace().playAudio('countoff');
+      }, 0);
+      $timeout(function() {
+        Blockly.getMainWorkspace().playAudio('countoff');
+      }, millisecsPerBeat);
+      $timeout(function() {
+        musicPlayer.playPlayerLine(
+            $scope.currentLevel.beatsPerMinute, setGrade);
+      }, 2.0 * millisecsPerBeat);
     };
 
     $scope.playWithAccompanimentAndGrade = function() {
@@ -104,7 +119,17 @@ abMusicDemo.controller('Index', [
 
       musicPlayer.setAccompaniment($scope.currentLevel.accompaniment);
       populatePlayerLine();
-      musicPlayer.playAllLines($scope.currentLevel.beatsPerMinute, setGrade);
+
+      var millisecsPerBeat = 60000.0 / $scope.currentLevel.beatsPerMinute;
+      $timeout(function() {
+        Blockly.getMainWorkspace().playAudio('countoff');
+      }, 0);
+      $timeout(function() {
+        Blockly.getMainWorkspace().playAudio('countoff');
+      }, millisecsPerBeat);
+      $timeout(function() {
+        musicPlayer.playAllLines($scope.currentLevel.beatsPerMinute, setGrade);
+      }, 2.0 * millisecsPerBeat);
     };
 
     $scope.playExpectedLine = function() {

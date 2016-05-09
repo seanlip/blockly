@@ -64,6 +64,14 @@
         // Decrease the hover time for tooltips.
         Blockly.Tooltip.HOVER_MS = 150;
 
+        // Preload audio for countoff and applause effects.
+        workspace.loadAudio_([
+            'media/countoff.ogg', 'media/countoff.mp3', 'countoff wav'
+        ], 'countoff');
+        workspace.loadAudio_([
+            'media/applause.mp3', 'media/applause.ogg', 'media/applause.wav'
+        ], 'applause');
+
         var defaultBlocks = document.getElementById('blocklyDefault');
         Blockly.Xml.domToWorkspace(workspace, defaultBlocks);
 
@@ -214,10 +222,12 @@
       <span>{{grade}}</span>
     </p>
 
+    <!--
     <p>
       <input type="button" value="View JavaScript code" onclick="toCode('JavaScript')">
       <br><br>
       <textarea id="importExport" style="width: 26%; height: 12em"></textarea>
     </p>
+    -->
   </body>
 </html>
