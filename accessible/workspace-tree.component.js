@@ -161,7 +161,9 @@ blocklyApp.WorkspaceTreeComponent = ng.core
 
       // Generate a list of action buttons.
       var that = this;
-      this.actionButtonsInfo = [{
+      this.actionButtonsInfo = [
+      /*
+      {
         baseIdKey: 'copy',
         translationIdForText: 'COPY_BLOCK',
         action: function() {
@@ -196,7 +198,9 @@ blocklyApp.WorkspaceTreeComponent = ng.core
              !that.block.nextConnection ||
               !that.isCompatibleWithClipboard(that.block.nextConnection));
         }
-      }, {
+      },
+      */
+      {
         baseIdKey: 'markBefore',
         translationIdForText: 'MARK_SPOT_BEFORE',
         action: that.markSpotBefore_.bind(that),
@@ -237,7 +241,7 @@ blocklyApp.WorkspaceTreeComponent = ng.core
         isDisabled: function() {
           return false;
         }
-      }, {
+      }/*, {
         baseIdKey: 'paste',
         translationIdForText: 'PASTE_INSIDE',
         action: function(connection) {
@@ -246,7 +250,7 @@ blocklyApp.WorkspaceTreeComponent = ng.core
         isDisabled: function(connection) {
           return !that.isCompatibleWithClipboard(connection);
         }
-      }];
+      }*/];
 
       // Make a list of all the id keys.
       this.idKeys = ['blockRoot', 'blockSummary', 'listItem', 'label'];
