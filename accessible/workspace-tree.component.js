@@ -196,7 +196,7 @@ blocklyApp.WorkspaceTreeComponent = ng.core
              !that.block.nextConnection ||
               !that.isCompatibleWithClipboard(that.block.nextConnection));
         }
-      }, {
+      }, /*{
         baseIdKey: 'markBefore',
         translationIdForText: 'MARK_SPOT_BEFORE',
         action: that.markSpotBefore_.bind(that),
@@ -218,7 +218,7 @@ blocklyApp.WorkspaceTreeComponent = ng.core
           return !that.clipboardService.isMovableToMarkedConnection(
               that.block);
         }
-      }, {
+      }, */{
         baseIdKey: 'delete',
         translationIdForText: 'DELETE',
         action: that.deleteBlock_.bind(that),
@@ -228,7 +228,7 @@ blocklyApp.WorkspaceTreeComponent = ng.core
       }];
 
       // Generate a list of action buttons.
-      this.fieldButtonsInfo = [{
+      this.fieldButtonsInfo = [/*{
         baseIdKey: 'markSpot',
         translationIdForText: 'MARK_THIS_SPOT',
         action: function(connection) {
@@ -237,7 +237,7 @@ blocklyApp.WorkspaceTreeComponent = ng.core
         isDisabled: function() {
           return false;
         }
-      }, {
+      },*/ {
         baseIdKey: 'paste',
         translationIdForText: 'PASTE_INSIDE',
         action: function(connection) {

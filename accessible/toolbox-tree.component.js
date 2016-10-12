@@ -41,6 +41,7 @@ blocklyApp.ToolboxTreeComponent = ng.core
             {{'COPY_TO_CLIPBOARD'|translate}}
           </button>
         </li>
+        <!--
         <li [id]="idMap['sendToSelected']" role="treeitem" *ngIf="!isWorkspaceEmpty()"
             [attr.aria-label]="getAriaLabelForCopyToMarkedSpotButton()"
             [attr.aria-level]="level + 1"
@@ -50,6 +51,7 @@ blocklyApp.ToolboxTreeComponent = ng.core
             {{'COPY_TO_MARKED_SPOT'|translate}}
           </button>
         </li>
+        -->
         <li [id]="idMap['workspaceCopy']" role="treeitem"
             [attr.aria-labelledBy]="generateAriaLabelledByAttr(idMap['workspaceCopyButton'], 'blockly-button')"
             [attr.aria-level]="level + 1">
