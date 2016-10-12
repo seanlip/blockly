@@ -36,6 +36,7 @@ Blockly.Msg.COPY_TO_MARKED_SPOT = 'Attach to link.';
 Blockly.Msg.COPY_TO_WORKSPACE = 'Add to workspace.';
 
 Blockly.Msg.COPY_BLOCK = 'Copy block.';
+Blockly.Msg.CUT_BLOCK = 'Cut block.';
 Blockly.Msg.DELETE = 'Delete block.';
 Blockly.Msg.MARK_SPOT_BEFORE = 'Add link before.';
 Blockly.Msg.MARK_SPOT_AFTER = 'Add link after.';

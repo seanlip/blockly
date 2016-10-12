@@ -162,6 +162,28 @@ blocklyApp.WorkspaceTreeComponent = ng.core
       // Generate a list of action buttons.
       var that = this;
       this.actionButtonsInfo = [{
+        baseIdKey: 'cut',
+        translationIdForText: 'CUT_BLOCK',
+        action: function() {
+          var blockDescription = that.getBlockDescription();
+          that.removeBlockAndSetFocus_(that.block, function() {
+            that.clipboardService.cut(that.block);
+          });
+
+          setTimeout(function() {
+            if (that.utilsService.isWorkspaceEmpty()) {
+              that.notificationsService.setStatusMessage(
+                  blockDescription + ' cut. Workspace is empty.');
+           } else {
+              that.notificationsService.setStatusMessage(
+                  blockDescription + ' cut. Now on workspace.');
+            }
+          });
+        },
+        isDisabled: function() {
+         return false;
+        }
+      }, {
         baseIdKey: 'copy',
         translationIdForText: 'COPY_BLOCK',
         action: function() {
